@@ -11,6 +11,9 @@ import {loginRules, signUpRules} from '../../modelRules/user-rules';
 
 import {validateToken} from '../../middlewares/validate-token';
 import {createServerRules} from '../../modelRules/server-rules';
+import serverInviteModel, {
+  IServerInvite,
+} from '../../models/server-invite-model';
 
 export async function createServer(
   parent: any,
@@ -48,6 +51,32 @@ export async function createChannel(
       name: args.name,
     });
     return await channel.save();
+  } catch (err) {
+    return new GraphQLError(err);
+  }
+}
+
+export async function createInvite(
+  parent: any,
+  args: any,
+  {headers}: any
+): Promise<IServerInvite | Error> {
+  try {
+    if (!headers.authorization) return new GraphQLError('Token not valid!');
+    const tokenData = validateToken(headers.authorization);
+    const user = await User.findById(tokenData.id);
+    if (!user) return new GraphQLError('User not found');
+    const isMember = await Server.findOne({users: user._id});
+
+    if (!isMember) return new GraphQLError('User not found');
+
+    const server = await Server.findOne({_id: args.serverId});
+    if (!server) return new GraphQLError('Server not found');
+    const invite = new serverInviteModel({
+      server: args.serverId,
+    });
+
+    return await invite.save();
   } catch (err) {
     return new GraphQLError(err);
   }

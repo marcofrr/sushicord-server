@@ -53,3 +53,11 @@ export const ServerType = new GraphQLObjectType({
     users: {type: new GraphQLList(GraphQLString)},
   }),
 });
+
+export const ServerInviteType = new GraphQLObjectType({
+  name: 'ServerInvite',
+  fields: () => ({
+    id: {type: new GraphQLNonNull(GraphQLID)},
+    server: {type: new GraphQLNonNull(GraphQLString)},
+  }),
+});
