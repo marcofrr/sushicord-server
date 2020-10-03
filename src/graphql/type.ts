@@ -27,3 +27,29 @@ export const TokenType = new GraphQLObjectType({
     user: {type: UserType},
   }),
 });
+
+export const ChannelType = new GraphQLObjectType({
+  name: 'Channel',
+  fields: () => ({
+    name: {type: GraphQLString},
+    server: {type: UserType},
+  }),
+});
+// export const ChannelType = new GraphQLObjectType({
+//   name: 'Channel',
+//   fields: () => ({
+//     id: {type: new GraphQLNonNull(GraphQLID)},
+//     name: {type: new GraphQLNonNull(GraphQLString)},
+//     serverId: {type: new GraphQLNonNull(GraphQLID)},
+//   }),
+// });
+
+export const ServerType = new GraphQLObjectType({
+  name: 'Server',
+  fields: () => ({
+    id: {type: new GraphQLNonNull(GraphQLID)},
+    name: {type: new GraphQLNonNull(GraphQLString)},
+    owner: {type: UserType},
+    users: {type: new GraphQLList(GraphQLString)},
+  }),
+});

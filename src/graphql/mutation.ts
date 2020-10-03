@@ -6,8 +6,9 @@ import {
   GraphQLList,
 } from 'graphql';
 
-import {UserType, TokenType} from './type';
+import {UserType, TokenType, ChannelType, ServerType} from './type';
 import {signup, login} from './resolver/user-resolver';
+import {createChannel, createServer} from './resolver/server-resolver';
 
 export const Mutation = new GraphQLObjectType({
   name: 'Mutation',
@@ -31,6 +32,20 @@ export const Mutation = new GraphQLObjectType({
         password: {type: new GraphQLNonNull(GraphQLString)},
       },
       resolve: login,
+    },
+    createServer: {
+      type: ServerType,
+      args: {
+        name: {type: new GraphQLNonNull(GraphQLString)},
+      },
+      resolve: createServer,
+    },
+    createServerChannel: {
+      type: ChannelType,
+      args: {
+        name: {type: new GraphQLNonNull(GraphQLString)},
+      },
+      resolve: createChannel,
     },
   },
 });

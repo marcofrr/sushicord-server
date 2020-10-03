@@ -44,7 +44,6 @@ export async function login(
     const userEmail: string = args.email;
     const user: IUser | null = await User.findOne({email: userEmail});
 
-    console.log(args.userName);
     if (!user) {
       return {token: '', user: null};
     }
