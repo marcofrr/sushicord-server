@@ -1,12 +1,14 @@
 import * as mongoose from 'mongoose';
 import {IServerChannel} from './server-channel-model';
+import { IUser } from './user-model';
 
 const Schema = mongoose.Schema;
 
 export interface IServer extends mongoose.Document {
   name: string;
   owner: string;
-  Channels: [IServerChannel];
+  channels: [IServerChannel];
+  users: [IUser];
 }
 
 const ServerSchema = new Schema(

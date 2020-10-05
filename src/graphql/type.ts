@@ -61,3 +61,10 @@ export const ServerInviteType = new GraphQLObjectType({
     server: {type: new GraphQLNonNull(GraphQLString)},
   }),
 });
+
+export const JoinServerType = new GraphQLObjectType({
+  name: 'JoinServer',
+  fields: () => ({
+    server: {type: new GraphQLNonNull(GraphQLString)},
+  }),
+});

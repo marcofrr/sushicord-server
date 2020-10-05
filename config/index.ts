@@ -5,7 +5,7 @@ type Config = {
   serverPort: number;
   serverDatabase: string;
   jwtSecret: string;
-  inviteDuration: number;
+  inviteDuration: string;
 };
 
 const config: Config = require(`./${env}`).default;

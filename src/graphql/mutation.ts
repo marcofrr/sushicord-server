@@ -12,13 +12,16 @@ import {
   ChannelType,
   ServerType,
   ServerInviteType,
+  JoinServerType,
 } from './type';
 import {signup, login} from './resolver/user-resolver';
 import {
   createChannel,
   createInvite,
   createServer,
+  joinServer,
 } from './resolver/server-resolver';
+import {resolve} from 'path';
 
 export const Mutation = new GraphQLObjectType({
   name: 'Mutation',
@@ -63,6 +66,13 @@ export const Mutation = new GraphQLObjectType({
         serverId: {type: new GraphQLNonNull(GraphQLString)},
       },
       resolve: createInvite,
+    },
+    joinServer: {
+      type: JoinServerType,
+      args: {
+        server: {type: new GraphQLNonNull(GraphQLString)},
+      },
+      resolve: joinServer,
     },
   },
 });

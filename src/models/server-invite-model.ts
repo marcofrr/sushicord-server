@@ -13,10 +13,10 @@ const ServerSchema = new Schema(
     expiresAt: {
       type: Date,
       default: Date.now,
-      expireAfterSeconds: config.inviteDuration,
+      expires: config.inviteDuration,
     },
   },
-  {timestamps: true}
+  {timestamps: false}
 );
 
 export default mongoose.model<IServerInvite>('ServerInvite', ServerSchema);
