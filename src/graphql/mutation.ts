@@ -21,7 +21,6 @@ import {
   createServer,
   joinServer,
 } from './resolver/server-resolver';
-import {resolve} from 'path';
 
 export const Mutation = new GraphQLObjectType({
   name: 'Mutation',
