@@ -4,19 +4,21 @@ import config from '../../config';
 const Schema = mongoose.Schema;
 
 export interface IServerInvite extends mongoose.Document {
-  server: string;
+  _id: string;
+  serverId: string;
 }
 
 const ServerSchema = new Schema(
   {
-    server: {type: String, required: true},
+    _id: {type: String, required: true},
+    serverId: {type: String, required: true},
     expiresAt: {
       type: Date,
       default: Date.now,
       expires: config.inviteDuration,
     },
   },
-  {timestamps: false}
+  {_id:false,timestamps: false}
 );
 
 export default mongoose.model<IServerInvite>('ServerInvite', ServerSchema);

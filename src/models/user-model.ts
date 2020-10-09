@@ -11,6 +11,7 @@ export enum Status {
 }
 
 export interface IUser extends mongoose.Document {
+  _id: string;
   email: string;
   userName: string;
   nickName: string;
@@ -21,6 +22,7 @@ export interface IUser extends mongoose.Document {
 
 const UserSchema = new Schema(
   {
+    _id: {type: String, required: true},
     email: {type: String, required: true},
     userName: {type: String, required: true},
     nickName: {type: String, required: false},
@@ -28,7 +30,7 @@ const UserSchema = new Schema(
     birthDate: {type: String, required: true},
     status: {type: Status, required: false},
   },
-  {timestamps: true}
+  {_id:false,timestamps: true}
 );
 
 UserSchema.pre('save', function (next: mongoose.HookNextFunction): void {

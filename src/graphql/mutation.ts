@@ -69,7 +69,7 @@ export const Mutation = new GraphQLObjectType({
     joinServer: {
       type: JoinServerType,
       args: {
-        server: {type: new GraphQLNonNull(GraphQLString)},
+        invite: {type: new GraphQLNonNull(GraphQLString)},
       },
       resolve: joinServer,
     },

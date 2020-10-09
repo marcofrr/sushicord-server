@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import * as jwt from 'jsonwebtoken';
-
+import * as mongoose from 'mongoose';
 import {GraphQLError} from 'graphql';
 
 import config from '../../../config';
@@ -21,6 +21,7 @@ export async function signup(parent: any, args: any): Promise<IUser | Error> {
     await signUpRules.validate(args);
 
     const user = new User({
+      _id: new mongoose.Types.ObjectId().toHexString(),
       email: args.email,
       userName: args.userName,
       nickName: null,

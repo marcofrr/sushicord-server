@@ -14,10 +14,9 @@ export const RootQuery = new GraphQLObjectType({
     user: {
       type: UserType,
       resolve(parent: any, args: any, {headers}: any) {
-        const {authorization} = headers;
-        const user = validateToken(authorization);
-
-        return User.findById(user.id);
+        // const {authorization} = headers;
+        // const user = validateToken(authorization);
+        // return User.findById(user.id);
       },
     },
   },
