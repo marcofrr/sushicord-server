@@ -1,5 +1,4 @@
 import * as mongoose from 'mongoose';
-import {IServerChannel} from './server-channel-model';
 import config from '../../config';
 const Schema = mongoose.Schema;
 

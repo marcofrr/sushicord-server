@@ -1,12 +1,7 @@
 import * as _ from 'lodash';
-import * as jwt from 'jsonwebtoken';
-
 import {GraphQLError} from 'graphql';
-import config from '../../../config';
 import * as mongoose from 'mongoose';
-import User, {IUser} from '../../models/user-model';
 import {IContext} from '../../index';
-import Channel, {IServerChannel} from '../../models/server-channel-model';
 import Server, {IServer} from '../../models/server-model';
 import Invite from '../../models/server-invite-model';
 import {loginRules, signUpRules} from '../../modelRules/user-rules';
@@ -40,23 +35,23 @@ export async function createServer(
   }
 }
 
-export async function createChannel(
-  parent: any,
-  args: any,
-  context: IContext
-): Promise<IServerChannel | Error> {
-  //falta realizar a verificacao
-  try {
-    if (!context.user) throw new AuthenticationError('User not found!');
-    const channel = new Channel({
-      _id: new mongoose.Types.ObjectId().toHexString(),
-      name: args.name,
-    });
-    return await channel.save();
-  } catch (err) {
-    return new GraphQLError(err);
-  }
-}
+// export async function createChannel(
+//   parent: any,
+//   args: any,
+//   context: IContext
+// ): Promise<IServerChannel | Error> {
+//   //falta realizar a verificacao
+//   try {
+//     if (!context.user) throw new AuthenticationError('User not found!');
+//     const channel = new Channel({
+//       _id: new mongoose.Types.ObjectId().toHexString(),
+//       name: args.name,
+//     });
+//     return await channel.save();
+//   } catch (err) {
+//     return new GraphQLError(err);
+//   }
+// }
 
 export async function createInvite(
   parent: any,
@@ -103,4 +98,7 @@ export async function joinServer(
   } catch (err) {
     return new GraphQLError(err);
   }
+
+
+
 }

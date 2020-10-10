@@ -16,7 +16,6 @@ import {
 } from './type';
 import {signup, login} from './resolver/user-resolver';
 import {
-  createChannel,
   createInvite,
   createServer,
   joinServer,
@@ -51,13 +50,6 @@ export const Mutation = new GraphQLObjectType({
         name: {type: new GraphQLNonNull(GraphQLString)},
       },
       resolve: createServer,
-    },
-    createServerChannel: {
-      type: ChannelType,
-      args: {
-        name: {type: new GraphQLNonNull(GraphQLString)},
-      },
-      resolve: createChannel,
     },
     createServerInvite: {
       type: ServerInviteType,

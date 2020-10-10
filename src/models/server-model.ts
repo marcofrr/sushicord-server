@@ -1,5 +1,4 @@
 import * as mongoose from 'mongoose';
-import {IServerChannel} from './server-channel-model';
 import {IUser} from './user-model';
 
 const Schema = mongoose.Schema;
@@ -8,8 +7,29 @@ export interface IServer extends mongoose.Document {
   _id: string;
   name: string;
   owner: string;
-  channels: [IServerChannel];
+  voiceChannels: [IVoiceChannel];
   users: [IUser];
+}
+
+export interface IVoiceChannel extends mongoose.Document {
+  _id: string;
+  serverId: string;
+  name: string;
+  users: [IUser];
+}
+
+export interface IServerMessage extends mongoose.Document{
+  _id: string;
+  serverId: string;
+  user: IUser;
+  content: string;
+}
+
+export interface ITextChannel extends mongoose.Document {
+  _id: string;
+  serverId: string;
+  name: string;
+  messages: [IServerMessage];
 }
 
 const UsersSchema = new Schema({
@@ -21,12 +41,35 @@ const UsersSchema = new Schema({
   status: {type: String, required: false},
 });
 
+const MessageSchema = new Schema({
+  _id: {type: String, required: true},
+  serverId: {type: String, required: true},
+  user: UsersSchema,
+  content: {type: String, required: true},
+});
+
+const VoiceChannelSchema = new Schema({
+  _id: {type: String, required: true},
+  serverId: {type: String, required: true},
+  name: {type: String, required: true},
+  messages: [UsersSchema],
+});
+
+const TextChannelSchema = new Schema({
+  _id: {type: String, required: true},
+  serverId: {type: String, required: true},
+  name: {type: String, required: true},
+  messages: [MessageSchema],
+});
+
 const ServerSchema = new Schema(
   {
     _id: {type: String, required: true},
     name: {type: String, required: true},
     owner: {type: String, required: true},
     users: [UsersSchema],
+    voiceChannels: [VoiceChannelSchema],
+    textChannels: [TextChannelSchema],
   },
   {_id:false,timestamps: true}
 );

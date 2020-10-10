@@ -9,7 +9,6 @@ import User, {IUser} from '../../models/user-model';
 
 import {loginRules, signUpRules} from '../../modelRules/user-rules';
 
-import {validateToken} from '../../middlewares/validate-token';
 
 type LoginResponse = {
   token: string | null;
@@ -57,4 +56,7 @@ export async function login(
   } catch (err) {
     return new GraphQLError(err);
   }
+
+
+
 }
