@@ -18,7 +18,24 @@ export interface IUser extends mongoose.Document {
   password: string;
   birthDate: string;
   status: Status;
+  friends: [IFriend];
 }
+
+export interface IFriend  {
+  _id: string;
+  email: string;
+  userName: string;
+}
+
+const FriendSchema = new Schema(
+  {
+    _id: {type: String, required: true},
+    email: {type: String, required: true},
+    userName: {type: String, required: true},
+    status: {type: Status, required: false},
+  },
+  {_id:false,timestamps: true}
+);
 
 const UserSchema = new Schema(
   {
@@ -29,6 +46,7 @@ const UserSchema = new Schema(
     password: {type: String, required: true},
     birthDate: {type: String, required: true},
     status: {type: Status, required: false},
+    friends: [FriendSchema]
   },
   {_id:false,timestamps: true}
 );

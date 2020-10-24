@@ -8,6 +8,7 @@ export interface IServer extends mongoose.Document {
   name: string;
   owner: string;
   voiceChannels: [IVoiceChannel];
+  textChannels: [ITextChannel];
   users: [IUser];
 }
 
@@ -18,7 +19,7 @@ export interface IVoiceChannel extends mongoose.Document {
   users: [IUser];
 }
 
-export interface IServerMessage extends mongoose.Document{
+export interface IServerMessage {
   _id: string;
   serverId: string;
   user: IUser;
@@ -52,7 +53,7 @@ const VoiceChannelSchema = new Schema({
   _id: {type: String, required: true},
   serverId: {type: String, required: true},
   name: {type: String, required: true},
-  messages: [UsersSchema],
+  users: [UsersSchema],
 });
 
 const TextChannelSchema = new Schema({

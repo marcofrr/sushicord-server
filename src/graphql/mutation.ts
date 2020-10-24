@@ -13,13 +13,21 @@ import {
   ServerType,
   ServerInviteType,
   JoinServerType,
+  ServerMessageType,
+  FriendRequestType,
+  HandleRequestType,
 } from './type';
-import {signup, login} from './resolver/user-resolver';
+import {signup, login, HandleFriendRequest} from './resolver/user-resolver';
 import {
   createInvite,
   createServer,
   joinServer,
+  createMessage,
 } from './resolver/server-resolver';
+import {
+  createFriendRequest
+} from  './resolver/user-resolver'
+
 
 export const Mutation = new GraphQLObjectType({
   name: 'Mutation',
@@ -29,10 +37,8 @@ export const Mutation = new GraphQLObjectType({
       args: {
         email: {type: new GraphQLNonNull(GraphQLString)},
         userName: {type: new GraphQLNonNull(GraphQLString)},
-        nickName: {type: GraphQLString},
         password: {type: new GraphQLNonNull(GraphQLString)},
         birthDate: {type: new GraphQLNonNull(GraphQLString)},
-        status: {type: new GraphQLNonNull(GraphQLString)},
       },
       resolve: signup,
     },
@@ -65,5 +71,29 @@ export const Mutation = new GraphQLObjectType({
       },
       resolve: joinServer,
     },
+    sendServerMessage: {
+      type: ServerMessageType,
+      args: {
+        serverId: {type: new GraphQLNonNull(GraphQLString)},
+        channelId: {type: new GraphQLNonNull(GraphQLString)},
+        content: {type: new GraphQLNonNull(GraphQLString)},
+      },
+      resolve: createMessage,
+    },
+    createFriendRequest: {
+      type: FriendRequestType,
+      args: {
+        receiverId: {type: new GraphQLNonNull(GraphQLString)},
+      },
+      resolve: createFriendRequest,
+    },
+    handleFriendRequest: {
+      type: HandleRequestType,
+      args: {
+        action: {type: new GraphQLNonNull(GraphQLString)},
+        requestId: {type: new GraphQLNonNull(GraphQLString)},
+      },
+      resolve: HandleFriendRequest,
+    },    
   },
 });

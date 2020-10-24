@@ -5,6 +5,7 @@ import {
   GraphQLID,
   GraphQLNonNull,
   GraphQLList,
+  GraphQLBoolean,
 } from 'graphql';
 
 export const UserType = new GraphQLObjectType({
@@ -19,6 +20,17 @@ export const UserType = new GraphQLObjectType({
     status: {type: GraphQLString},
   }),
 });
+
+// export const UserNameType = new GraphQLObjectType({
+//   name: 'UserName',
+//   fields: () => ({
+//     email: {type: GraphQLString},
+//     userName: {type: GraphQLString},
+//     nickName: {type: GraphQLString},
+//     birthDate: {type: GraphQLString},     
+//   }),
+// }); 
+
 
 export const TokenType = new GraphQLObjectType({
   name: 'Token',
@@ -54,6 +66,7 @@ export const ServerType = new GraphQLObjectType({
   }),
 });
 
+
 export const ServerInviteType = new GraphQLObjectType({
   name: 'ServerInvite',
   fields: () => ({
@@ -67,4 +80,31 @@ export const JoinServerType = new GraphQLObjectType({
   fields: () => ({
     serverId: {type: new GraphQLNonNull(GraphQLString)},
   }),
+
+});
+
+export const ServerMessageType = new GraphQLObjectType({
+  name: 'ServerMessage',
+  fields: () => ({
+    serverId: {type: new GraphQLNonNull(GraphQLString)},
+    channelId: {type: new GraphQLNonNull(GraphQLString)},
+    content: {type: new GraphQLNonNull(GraphQLString)},
+  }),
+
+});
+
+export const FriendRequestType = new GraphQLObjectType({
+  name: 'FriendRequest',
+  fields: () => ({
+    _id: {type: new GraphQLNonNull(GraphQLString)},
+  }),
+
+});
+
+export const HandleRequestType = new GraphQLObjectType({
+  name: 'HandleFriendRequest',
+  fields: () => ({
+    _id: {type: new GraphQLNonNull(GraphQLString)},
+  }),
+
 });
