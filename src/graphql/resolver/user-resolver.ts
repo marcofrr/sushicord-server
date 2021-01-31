@@ -12,6 +12,7 @@ import {IFriendRequest} from '../../models/friend-request-model'
 import { AuthenticationError } from 'apollo-server-express';
 import FriendRequest from '../../models/friend-request-model';
 import { string } from 'yup';
+import { pubsub } from '../pubsub';
 type LoginResponse = {
   token: string | null;
   user: IUser | null;
@@ -78,10 +79,13 @@ export async function createFriendRequest(
     sender: {
       _id:context.user._id,
       email: context.user.email,
-      userName: context.user.userName
+      userName: context.user.userName,
+      status: 'online'
     },
     receiver: receiver,
     })
+    pubsub.publish("newFriendRequest", friendRequest)
+
     return await friendRequest.save();
 }
 

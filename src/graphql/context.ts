@@ -6,12 +6,10 @@ export default async function Context(
   res: express.Response
 ) {
   const headers = req.headers || '';
-  console.log(req);
   if (headers.authorization) {
     const tokenData = validateToken(headers.authorization);
     const user = await User.findOne({_id: tokenData.id});
 
-    console.log(user);
   }
 
   //   const user = await User.findOne({_id: tokenData.id});

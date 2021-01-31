@@ -92,14 +92,37 @@ export const ServerMessageType = new GraphQLObjectType({
   }),
 
 });
+export const SenderType = new GraphQLObjectType({
+  name: 'Sender',
+  fields: () => ({
+    _id: {type: new GraphQLNonNull(GraphQLString)},
+    email: {type: new GraphQLNonNull(GraphQLString)},
+    userName: {type: new GraphQLNonNull(GraphQLString)},
+    status: {type: new GraphQLNonNull(GraphQLString)},
+  }),
 
+});
+
+export const ReceiverType = new GraphQLObjectType({
+  name: 'Receiver',
+  fields: () => ({
+    _id: {type: new GraphQLNonNull(GraphQLString)},
+    email: {type: new GraphQLNonNull(GraphQLString)},
+    userName: {type: new GraphQLNonNull(GraphQLString)},
+  }),
+
+});
 export const FriendRequestType = new GraphQLObjectType({
   name: 'FriendRequest',
   fields: () => ({
     _id: {type: new GraphQLNonNull(GraphQLString)},
+    sender: {type: new GraphQLNonNull(SenderType)},
+    receiver: {type: new GraphQLNonNull(ReceiverType)},
   }),
-
 });
+
+
+
 
 export const HandleRequestType = new GraphQLObjectType({
   name: 'HandleFriendRequest',
