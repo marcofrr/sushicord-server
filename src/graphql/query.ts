@@ -87,14 +87,46 @@ export const RootQuery = new GraphQLObjectType({
         const user = await User.findOne({_id: id});
         if(!user) throw new AuthenticationError('User not found!');
 
-        const messageList = await PrivateMessage.find({ senderId:args.senderId, 
-                                                        receiverId:args.receiverId}).
-                                                limit(args.limit).
-                                                skip(args.offset).
-                                                sort({createdAt: 'desc'})
+        const messageList = await PrivateMessage.find({ senderId:args.senderId, receiverId:args.receiverId}).
+          limit(args.limit).
+          skip(args.offset).
+          sort({createdAt: 'desc'})
         return messageList
       },
 
-    },    
+    },
+    ChatList: {
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserType))),
+      args: {
+        token: { type: GraphQLString },
+        userId: { type: GraphQLString },
+      },
+      async resolve(parent: any, args: any, context: IContext) {
+        if(!args.token)throw new AuthenticationError('Token not found!');
+        const {id} = validateToken(args.token);
+        const user = await User.findOne({_id: id});
+        if(!user) throw new AuthenticationError('User not found!');
+        const messageList = await PrivateMessage.aggregate( [
+          {
+            $match : { "receiverId": { $gte: args.userId} }
+          },
+          {
+            $group: {
+              _id: "$senderId",
+               count: { $sum: 1 }
+            }
+          },{ $sort: { count: -1 } }
+        ] )
+        const list : IUser[] = [];
+
+        for(const element of messageList){
+          const user = await User.findOne({_id: element._id})
+          if(user) list.push(user)
+
+        }
+        return list
+      },
+
+    },   
   },
 });
