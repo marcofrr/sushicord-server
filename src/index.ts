@@ -6,6 +6,7 @@ import {connectDb} from './db';
 import {validateToken} from './middlewares/validate-token';
 import User, {IUser} from './models/user-model';
 import {UserType} from './graphql/type';
+import { AuthenticationError } from 'apollo-server-express';
 
 const {ApolloServer} = require('apollo-server-express');
 const http= require('http')
@@ -25,12 +26,10 @@ const server = new ApolloServer({
   schema,
   context: async ({req, connection}: any) => {
     if(connection){
-
       const context: IContext = {};
-
       const {id} = validateToken(connection.variables.token);
       const user = await User.findOne({_id: id});
-      if (!user) return context;
+      if (!user) throw new AuthenticationError('User not found!');
       context.user = user;
       return context;
     }else{
@@ -46,14 +45,6 @@ const server = new ApolloServer({
   },
   subscriptions: {
     onConnect: async (connectionParams: { token: string | undefined; }, webSocket: any) => {
-        const context: IContext = {};
-        const {id} = validateToken(connectionParams.token);
-        const user = await User.findOne({_id: id});
-        if (!user) return context;
-        context.user = user;
-        return context;
-
-      // throw new Error('Missing auth token!');
     },
     onDisconnect: (webSocket: any, context : IContext) => {
     },

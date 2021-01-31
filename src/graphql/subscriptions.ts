@@ -36,8 +36,8 @@ export const Subscription = new GraphQLObjectType({
                 },
                 subscribe: withFilter(
                     () => pubsub.asyncIterator('newPrivMessage'),
-                    (payload, variables) => {
-                    return payload.newPrivMessage.receiverId === variables.receiverId;
+                    async (payload, variables,context: IContext) => {
+                        return payload.newPrivMessage.receiverId === variables.receiverId;
                     },
                   ),
                 }
