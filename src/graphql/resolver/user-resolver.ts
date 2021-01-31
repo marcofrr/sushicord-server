@@ -84,7 +84,7 @@ export async function createFriendRequest(
     },
     receiver: receiver,
     })
-    pubsub.publish("newFriendRequest", friendRequest)
+    pubsub.publish("newFriendRequest", {newFriendRequest: friendRequest})
 
     return await friendRequest.save();
 }

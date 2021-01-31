@@ -23,18 +23,31 @@ export interface IContext  {
 
 const server = new ApolloServer({
   schema,
-  context: async ({req}: any) => {
-    console.log('req')
-    const context: IContext = {};
-    const {id} = validateToken(req.headers.authorization);
-    const user = await User.findOne({_id: id});
-    if (!user) return context;
-    context.user = user;
-    return context;
+  context: async ({req, connection}: any) => {
+    if(connection){
+
+      const context: IContext = {};
+
+      const {id} = validateToken(connection.variables.token);
+      const user = await User.findOne({_id: id});
+      if (!user) return context;
+      context.user = user;
+      return context;
+    }else{
+      const context: IContext = {};
+
+      const {id} = validateToken(req.headers.authorization);
+      const user = await User.findOne({_id: id});
+      if (!user) return context;
+      context.user = user;
+      return context;
+    }
+
   },
   subscriptions: {
     onConnect: async (connectionParams: { token: string | undefined; }, webSocket: any) => {
-        console.log('connectionParams')
+      console.log('connection gained')
+      console.log(connectionParams.token)
         const context: IContext = {};
         const {id} = validateToken(connectionParams.token);
         const user = await User.findOne({_id: id});
@@ -43,6 +56,9 @@ const server = new ApolloServer({
         return context;
 
       // throw new Error('Missing auth token!');
+    },
+    onDisconnect: (webSocket: any, context : IContext) => {
+      console.log('connection lost')
     },
   },
 });

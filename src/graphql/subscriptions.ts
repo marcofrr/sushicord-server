@@ -11,6 +11,7 @@ import { IContext } from '../index'
 
 import {pubsub} from './pubsub'
 import { GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql';
+import { pullAll } from 'lodash';
 
 export const Subscription = new GraphQLObjectType({
     name: 'Subscription',
@@ -23,10 +24,7 @@ export const Subscription = new GraphQLObjectType({
             subscribe: withFilter(
                 () => pubsub.asyncIterator('newFriendRequest'),
                 (payload, variables) => {
-                    console.log(payload);
-                    console.log(variables);
-                    return payload
-                //  return payload.commentAdded.repository_name === variables.repoFullName;
+                return payload.newFriendRequest.receiver._id === variables.receiverId;
                 },
               ),
             }

@@ -11,7 +11,9 @@ type ValidateRes = {
 export const validateToken = (token?: string): ValidateRes => {
   if (token) {
     try {
-      return jwt.verify(token, config.jwtSecret) as ValidateRes;
+      const res = jwt.verify(token, config.jwtSecret) as ValidateRes;
+      return res
+
     } catch (err) {
       return {
         id: undefined,
