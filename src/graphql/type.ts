@@ -124,10 +124,10 @@ export const FriendRequestType = new GraphQLObjectType({
 
 
 
-export const HandleRequestType = new GraphQLObjectType({
-  name: 'HandleFriendRequest',
-  fields: () => ({
-    _id: {type: new GraphQLNonNull(GraphQLString)},
-  }),
+// export const HandleRequestType = new GraphQLObjectType({
+//   name: 'HandleFriendRequest',
+//   fields: () => ({
+//     _id: {type: new GraphQLNonNull(GraphQLString)},
+//   }),
 
-});
+// });

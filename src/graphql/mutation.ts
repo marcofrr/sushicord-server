@@ -15,7 +15,6 @@ import {
   JoinServerType,
   ServerMessageType,
   FriendRequestType,
-  HandleRequestType,
 } from './type';
 import {signup, login, HandleFriendRequest} from './resolver/user-resolver';
 import {
@@ -88,7 +87,7 @@ export const Mutation = new GraphQLObjectType({
       resolve: createFriendRequest,
     },
     handleFriendRequest: {
-      type: HandleRequestType,
+      type: FriendRequestType,
       args: {
         action: {type: new GraphQLNonNull(GraphQLString)},
         requestId: {type: new GraphQLNonNull(GraphQLString)},

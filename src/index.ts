@@ -24,6 +24,7 @@ export interface IContext  {
 const server = new ApolloServer({
   schema,
   context: async ({req}: any) => {
+    console.log('req')
     const context: IContext = {};
     const {id} = validateToken(req.headers.authorization);
     const user = await User.findOne({_id: id});
@@ -33,6 +34,7 @@ const server = new ApolloServer({
   },
   subscriptions: {
     onConnect: async (connectionParams: { token: string | undefined; }, webSocket: any) => {
+        console.log('connectionParams')
         const context: IContext = {};
         const {id} = validateToken(connectionParams.token);
         const user = await User.findOne({_id: id});

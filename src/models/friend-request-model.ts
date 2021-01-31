@@ -5,8 +5,20 @@ const Schema = mongoose.Schema;
 
 export interface IFriendRequest extends mongoose.Document{
   _id: string;
-  sender: IFriend;
-  receiver: IUser;
+  sender: ISender;
+  receiver: IReceiver;
+}
+export interface ISender{
+  _id: string;
+  email: string;
+  userName: string;
+  status: Status;
+
+}
+export interface IReceiver{
+  _id: string;
+  email: string;
+  userName: string;
 }
 
 const SenderSchema = new Schema(
