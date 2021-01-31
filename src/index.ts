@@ -46,8 +46,6 @@ const server = new ApolloServer({
   },
   subscriptions: {
     onConnect: async (connectionParams: { token: string | undefined; }, webSocket: any) => {
-      console.log('connection gained')
-      console.log(connectionParams.token)
         const context: IContext = {};
         const {id} = validateToken(connectionParams.token);
         const user = await User.findOne({_id: id});
@@ -58,7 +56,6 @@ const server = new ApolloServer({
       // throw new Error('Missing auth token!');
     },
     onDisconnect: (webSocket: any, context : IContext) => {
-      console.log('connection lost')
     },
   },
 });

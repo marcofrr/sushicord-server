@@ -122,22 +122,8 @@ export async function HandleFriendRequest(
     await context.user.save()
     await sender.save()
   }
-  //FriendRequest.remove(friendRequest);
   friendRequest.deleteOne()
   return friendRequest;
-  // const receiver = await User.findOne({_id: args.receiverId});
-  // if(!receiver) throw new GraphQLError('User not F ound!');
-  // //check if already friends
 
-  // // const friendRequest = new FriendRequest ({
-  // //   _id:new mongoose.Types.ObjectId().toHexString(),
-  // //   sender: {
-  // //     _id:context.user._id,
-  // //     email: context.user.email,
-  // //     userName: context.user.userName
-  // //   },
-  // //   receiver: receiver,
-  // //   })
-  //   return await friendRequest.save();
 }
 

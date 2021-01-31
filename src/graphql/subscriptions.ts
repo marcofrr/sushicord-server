@@ -2,7 +2,7 @@ import * as graphql from 'graphql';
 
 import User, { IUser } from '../models/user-model';
 import Server from '../models/server-model';
-import { UserType,ServerType, FriendRequestType} from './type';
+import { UserType,ServerType, FriendRequestType, PrivMessageType} from './type';
 
 import {validateToken} from '../middlewares/validate-token';
 import { extendSchemaImpl } from 'graphql/utilities/extendSchema';
@@ -23,11 +23,24 @@ export const Subscription = new GraphQLObjectType({
             },
             subscribe: withFilter(
                 () => pubsub.asyncIterator('newFriendRequest'),
-                (payload, variables) => {
+                (payload, variables,context : IContext) => {
+
                 return payload.newFriendRequest.receiver._id === variables.receiverId;
                 },
               ),
-            }
+            },
+            newPrivMessage: {
+                type: PrivMessageType,
+                args: {        
+                    receiverId: {type: new GraphQLNonNull(GraphQLString)},
+                },
+                subscribe: withFilter(
+                    () => pubsub.asyncIterator('newPrivMessage'),
+                    (payload, variables) => {
+                    return payload.newPrivMessage.receiverId === variables.receiverId;
+                    },
+                  ),
+                }
         },
     });
   

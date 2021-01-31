@@ -2,14 +2,15 @@ import * as graphql from 'graphql';
 
 import User, { IUser } from '../models/user-model';
 import Server from '../models/server-model';
-import { UserType,ServerType, FriendRequestType} from './type';
+import { UserType,ServerType, FriendRequestType, PrivMessageType} from './type';
 
 import {validateToken} from '../middlewares/validate-token';
 import { extendSchemaImpl } from 'graphql/utilities/extendSchema';
 import { AuthenticationError } from 'apollo-server-express';
 import { IContext } from '../index'
 import FriendRequest from '../models/friend-request-model';
-
+import { GraphQLInt } from 'graphql';
+import PrivateMessage from '../models/private-message-model'
 const {GraphQLObjectType, GraphQLID, GraphQLList,GraphQLString, GraphQLNonNull } = graphql;
 
 export const RootQuery = new GraphQLObjectType({
@@ -18,7 +19,7 @@ export const RootQuery = new GraphQLObjectType({
     username: {
       type: UserType,
       args: { token: { type: GraphQLString } },
-      async resolve(parent: any, args: any, context: any) {
+      async resolve(parent: any, args: any, context: IContext) {
         const {id} = validateToken(args.token);
         const user = await User.findOne({_id: id});
         const returnData = {
@@ -70,6 +71,30 @@ export const RootQuery = new GraphQLObjectType({
         //console.log(context.user)
         return friendRequest
       },
+
+    },PrivMessages: {
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(PrivMessageType))),
+      args: {
+        token: { type: GraphQLString },
+        senderId: { type: GraphQLString },
+        receiverId: { type: GraphQLString },
+        offset: { type: GraphQLInt },
+        limit: { type: GraphQLInt }
+      },
+      async resolve(parent: any, args: any, context: IContext) {
+        if(!args.token)throw new AuthenticationError('Token not found!');
+        const {id} = validateToken(args.token);
+        const user = await User.findOne({_id: id});
+        if(!user) throw new AuthenticationError('User not found!');
+
+        const messageList = await PrivateMessage.find({ senderId:args.senderId, 
+                                                        receiverId:args.receiverId}).
+                                                limit(args.limit).
+                                                skip(args.offset).
+                                                sort({createdAt: 'desc'})
+        return messageList
+      },
+
     },    
   },
 });

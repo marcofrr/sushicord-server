@@ -21,16 +21,6 @@ export const UserType = new GraphQLObjectType({
   }),
 });
 
-// export const UserNameType = new GraphQLObjectType({
-//   name: 'UserName',
-//   fields: () => ({
-//     email: {type: GraphQLString},
-//     userName: {type: GraphQLString},
-//     nickName: {type: GraphQLString},
-//     birthDate: {type: GraphQLString},     
-//   }),
-// }); 
-
 
 export const TokenType = new GraphQLObjectType({
   name: 'Token',
@@ -47,14 +37,7 @@ export const ChannelType = new GraphQLObjectType({
     server: {type: UserType},
   }),
 });
-// export const ChannelType = new GraphQLObjectType({
-//   name: 'Channel',
-//   fields: () => ({
-//     id: {type: new GraphQLNonNull(GraphQLID)},
-//     name: {type: new GraphQLNonNull(GraphQLString)},
-//     serverId: {type: new GraphQLNonNull(GraphQLID)},
-//   }),
-// });
+
 
 export const ServerType = new GraphQLObjectType({
   name: 'Server',
@@ -121,6 +104,16 @@ export const FriendRequestType = new GraphQLObjectType({
   }),
 });
 
+export const PrivMessageType = new GraphQLObjectType({
+  name: 'PrivMessage',
+  fields: () => ({
+    _id: {type: new GraphQLNonNull(GraphQLString)},
+    senderId: {type: new GraphQLNonNull(GraphQLString)},
+    receiverId: {type: new GraphQLNonNull(GraphQLString)},
+    content: {type: new GraphQLNonNull(GraphQLString)},
+    isSeen: {type: new GraphQLNonNull(GraphQLBoolean)},
+  }),
+});
 
 
 
