@@ -1,17 +1,22 @@
 import * as graphql from 'graphql';
+import * as _ from 'lodash';
 
 import User, { IUser } from '../models/user-model';
 import Server from '../models/server-model';
-import { UserType,ServerType, FriendRequestType, PrivMessageType} from './type';
+import { UserType,ServerType, FriendRequestType, PrivMessageType, UserNotificationType} from './type';
 
 import {validateToken} from '../middlewares/validate-token';
-import { extendSchemaImpl } from 'graphql/utilities/extendSchema';
 import { AuthenticationError } from 'apollo-server-express';
 import { IContext } from '../index'
 import FriendRequest from '../models/friend-request-model';
 import { GraphQLInt } from 'graphql';
 import PrivateMessage from '../models/private-message-model'
 const {GraphQLObjectType, GraphQLID, GraphQLList,GraphQLString, GraphQLNonNull } = graphql;
+
+interface INotificationUser  {
+  user: IUser;
+  unreadMessages: number;
+}     
 
 export const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
@@ -67,8 +72,6 @@ export const RootQuery = new GraphQLObjectType({
         if(!user) throw new AuthenticationError('User not found!');
 
         const friendRequest = await FriendRequest.find({'receiver._id' : id});
-        // const serverList = await Server.find({users : {$elemMatch : {_id: user._id}}}).sort({name:'asc'})
-        //console.log(context.user)
         return friendRequest
       },
 
@@ -77,7 +80,6 @@ export const RootQuery = new GraphQLObjectType({
       args: {
         token: { type: GraphQLString },
         senderId: { type: GraphQLString },
-        receiverId: { type: GraphQLString },
         offset: { type: GraphQLInt },
         limit: { type: GraphQLInt }
       },
@@ -86,8 +88,8 @@ export const RootQuery = new GraphQLObjectType({
         const {id} = validateToken(args.token);
         const user = await User.findOne({_id: id});
         if(!user) throw new AuthenticationError('User not found!');
-
-        const messageList = await PrivateMessage.find({ senderId:args.senderId, receiverId:args.receiverId}).
+        const messageList = await PrivateMessage.
+          find({ $or:[{senderId:args.senderId, receiverId:user._id},{senderId:user._id, receiverId:args.senderId}]}).
           limit(args.limit).
           skip(args.offset).
           sort({createdAt: 'desc'})
@@ -96,35 +98,35 @@ export const RootQuery = new GraphQLObjectType({
 
     },
     ChatList: {
-      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserType))),
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserNotificationType))),
       args: {
         token: { type: GraphQLString },
-        userId: { type: GraphQLString },
       },
       async resolve(parent: any, args: any, context: IContext) {
         if(!args.token)throw new AuthenticationError('Token not found!');
         const {id} = validateToken(args.token);
         const user = await User.findOne({_id: id});
         if(!user) throw new AuthenticationError('User not found!');
-        const messageList = await PrivateMessage.aggregate( [
-          {
-            $match : { "receiverId": { $gte: args.userId} }
-          },
-          {
-            $group: {
-              _id: "$senderId",
-               count: { $sum: 1 }
-            }
-          },{ $sort: { count: -1 } }
-        ] )
-        const list : IUser[] = [];
 
-        for(const element of messageList){
-          const user = await User.findOne({_id: element._id})
-          if(user) list.push(user)
+        const lastMessages = await PrivateMessage.find({ receiverId:user._id}).sort({ createdAt: -1});
+        const lastMessagesByUser = _.uniqBy(lastMessages,'senderId');
+   
+        const res: INotificationUser[]=[];
+
+        for(const item of lastMessagesByUser){
+          const u =  await User.findOne({_id: item.senderId});
+          if(u){
+            const unreadMessages = await PrivateMessage.find({senderId: item.senderId, isSeen:false}).countDocuments()
+
+            const aux : INotificationUser = {
+              user: u,
+              unreadMessages:unreadMessages
+            }
+            res.push(aux)
+          }
 
         }
-        return list
+        return res  
       },
 
     },   

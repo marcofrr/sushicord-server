@@ -29,10 +29,10 @@ export async function createPrivMessage(
       if (!context.user) throw new AuthenticationError('User not found!');
       const receiver = await User.findOne({_id: args.receiverId});
       if (!receiver) return new GraphQLError('Receiver was not found!');
-    
+      
       const newMessage = new PrivateMessage({
         _id: new mongoose.Types.ObjectId().toHexString(),
-        senderId: args.senderId,
+        senderId: context.user._id,
         receiverId: args.receiverId,
         content: args.content,
       })

@@ -99,10 +99,8 @@ export const Mutation = new GraphQLObjectType({
     sendPrivMessage: {
       type: PrivMessageType,
       args: {
-        senderId: {type: new GraphQLNonNull(GraphQLString)},
         receiverId: {type: new GraphQLNonNull(GraphQLString)},
         content: {type: new GraphQLNonNull(GraphQLString)},
-
       },
       resolve: createPrivMessage,
     },

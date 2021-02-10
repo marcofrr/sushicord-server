@@ -21,6 +21,15 @@ export const UserType = new GraphQLObjectType({
   }),
 });
 
+export const UserNotificationType = new GraphQLObjectType({
+  name: 'UserNotification',
+  fields: () => ({
+    user: {type: new GraphQLNonNull(UserType)},
+    unreadMessages: {type: GraphQLInt},
+  }),
+});
+
+
 
 export const TokenType = new GraphQLObjectType({
   name: 'Token',

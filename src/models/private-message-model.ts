@@ -9,7 +9,7 @@ export interface IPrivMessage extends mongoose.Document {
     receiverId: string;
     content: string;
     isSeen: boolean;
-
+    createdAt: string;
 }
   
 

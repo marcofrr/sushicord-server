@@ -49,8 +49,7 @@ export async function login(
     const user: IUser | null = await User.findOne({email: userEmail});
 
     if (!user) {
-      return {token: '', user: null};
-    }
+      throw new AuthenticationError('User not found!');    }
 
     const token = jwt.sign({id: user.id, userEmail}, config.jwtSecret!, {
       expiresIn: '1d',
