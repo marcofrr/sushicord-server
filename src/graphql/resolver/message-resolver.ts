@@ -35,6 +35,7 @@ export async function createPrivMessage(
         senderId: context.user._id,
         receiverId: args.receiverId,
         content: args.content,
+        createdAt: Date.now().toString()
       })
       pubsub.publish("newPrivMessage", {newPrivMessage: newMessage})      
       return await newMessage.save();

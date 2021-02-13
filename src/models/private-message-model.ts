@@ -20,9 +20,10 @@ const PrivateMessageSchema = new Schema(
     receiverId: {type: String, required: true},
     content: {type: String, required: true},
     isSeen: {type: Boolean, required: true, default:false},
+    createdAt: {type: String, required: true},
 
   },
-  {_id:false,timestamps: true}
+  {_id:false,timestamps: false}
 );
 
 export default mongoose.model<IPrivMessage>('PrivateMessage', PrivateMessageSchema);

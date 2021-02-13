@@ -121,6 +121,8 @@ export const PrivMessageType = new GraphQLObjectType({
     receiverId: {type: new GraphQLNonNull(GraphQLString)},
     content: {type: new GraphQLNonNull(GraphQLString)},
     isSeen: {type: new GraphQLNonNull(GraphQLBoolean)},
+    createdAt: {type: new GraphQLNonNull(GraphQLString)},
+
   }),
 });
 
