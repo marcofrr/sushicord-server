@@ -39,11 +39,44 @@ export const TokenType = new GraphQLObjectType({
   }),
 });
 
-export const ChannelType = new GraphQLObjectType({
-  name: 'Channel',
+// export const ChannelType = new GraphQLObjectType({
+//   name: 'Channel',
+//   fields: () => ({
+//     name: {type: GraphQLString},
+//     server: {type: UserType},
+//   }),
+// });
+
+export const serverMessageType = new GraphQLObjectType({
+  name: 'ServerMessage',
   fields: () => ({
-    name: {type: GraphQLString},
-    server: {type: UserType},
+    id: {type: new GraphQLNonNull(GraphQLID)},
+    serverId: {type: new GraphQLNonNull(GraphQLID)},
+    name: {type: new GraphQLNonNull(GraphQLString)},
+    user: {type: new GraphQLNonNull(UserType)},
+    content: {type: new GraphQLNonNull(GraphQLString)},
+
+  }),
+});
+
+export const textChannelType = new GraphQLObjectType({
+  name: 'TextChannel',
+  fields: () => ({
+    id: {type: new GraphQLNonNull(GraphQLID)},
+    serverId: {type: new GraphQLNonNull(GraphQLID)},
+    name: {type: new GraphQLNonNull(GraphQLString)},
+    users: {type: new GraphQLList(UserType)},
+    messages: {type: new GraphQLList(serverMessageType)},
+  }),
+});
+
+export const voiceChannelType = new GraphQLObjectType({
+  name: 'VoiceChannel',
+  fields: () => ({
+    id: {type: new GraphQLNonNull(GraphQLID)},
+    serverId: {type: new GraphQLNonNull(GraphQLID)},
+    name: {type: new GraphQLNonNull(GraphQLString)},
+    users: {type: new GraphQLList(UserType)},
   }),
 });
 
@@ -54,9 +87,13 @@ export const ServerType = new GraphQLObjectType({
     id: {type: new GraphQLNonNull(GraphQLID)},
     name: {type: new GraphQLNonNull(GraphQLString)},
     owner: {type: UserType},
-    users: {type: new GraphQLList(GraphQLString)},
+    users: {type: new GraphQLList(UserType)},
+    voiceChannels: {type: new GraphQLList(voiceChannelType)},
+    textChannels: {type: new GraphQLList(textChannelType)},
   }),
 });
+
+
 
 
 export const ServerInviteType = new GraphQLObjectType({

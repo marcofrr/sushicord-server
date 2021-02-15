@@ -75,7 +75,30 @@ export const RootQuery = new GraphQLObjectType({
         return friendRequest
       },
 
-    },PrivMessages: {
+    },ServerData: {
+      type: new GraphQLNonNull((PrivMessageType)),
+      args: {
+        token: { type: GraphQLString },
+        senderId: { type: GraphQLString },
+        offset: { type: GraphQLInt },
+        limit: { type: GraphQLInt }
+      },
+      async resolve(parent: any, args: any, context: IContext) {
+        if(!args.token)throw new AuthenticationError('Token not found!');
+        const {id} = validateToken(args.token);
+        const user = await User.findOne({_id: id});
+        if(!user) throw new AuthenticationError('User not found!');
+        const messageList = await PrivateMessage.
+          find({ $or:[{senderId:args.senderId, receiverId:user._id},{senderId:user._id, receiverId:args.senderId}]}).
+          limit(args.limit).
+          skip(args.offset).
+          sort({createdAt: 'desc'})
+        return messageList
+      },
+
+    }
+    
+    ,PrivMessages: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(PrivMessageType))),
       args: {
         token: { type: GraphQLString },
