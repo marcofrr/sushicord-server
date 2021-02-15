@@ -39,15 +39,15 @@ export const TokenType = new GraphQLObjectType({
   }),
 });
 
-// export const ChannelType = new GraphQLObjectType({
-//   name: 'Channel',
-//   fields: () => ({
-//     name: {type: GraphQLString},
-//     server: {type: UserType},
-//   }),
-// });
+export const ChannelType = new GraphQLObjectType({
+  name: 'Channel',
+  fields: () => ({
+    name: {type: GraphQLString},
+    server: {type: UserType},
+  }),
+});
 
-export const serverMessageType = new GraphQLObjectType({
+export const ServerMessageType = new GraphQLObjectType({
   name: 'ServerMessage',
   fields: () => ({
     id: {type: new GraphQLNonNull(GraphQLID)},
@@ -59,18 +59,18 @@ export const serverMessageType = new GraphQLObjectType({
   }),
 });
 
-export const textChannelType = new GraphQLObjectType({
+export const TextChannelType = new GraphQLObjectType({
   name: 'TextChannel',
   fields: () => ({
     id: {type: new GraphQLNonNull(GraphQLID)},
     serverId: {type: new GraphQLNonNull(GraphQLID)},
     name: {type: new GraphQLNonNull(GraphQLString)},
     users: {type: new GraphQLList(UserType)},
-    messages: {type: new GraphQLList(serverMessageType)},
+    messages: {type: new GraphQLList(ServerMessageType)},
   }),
 });
 
-export const voiceChannelType = new GraphQLObjectType({
+export const VoiceChannelType = new GraphQLObjectType({
   name: 'VoiceChannel',
   fields: () => ({
     id: {type: new GraphQLNonNull(GraphQLID)},
@@ -88,8 +88,8 @@ export const ServerType = new GraphQLObjectType({
     name: {type: new GraphQLNonNull(GraphQLString)},
     owner: {type: UserType},
     users: {type: new GraphQLList(UserType)},
-    voiceChannels: {type: new GraphQLList(voiceChannelType)},
-    textChannels: {type: new GraphQLList(textChannelType)},
+    voiceChannels: {type: new GraphQLList(VoiceChannelType)},
+    textChannels: {type: new GraphQLList(TextChannelType)},
   }),
 });
 
@@ -112,15 +112,15 @@ export const JoinServerType = new GraphQLObjectType({
 
 });
 
-export const ServerMessageType = new GraphQLObjectType({
-  name: 'ServerMessage',
-  fields: () => ({
-    serverId: {type: new GraphQLNonNull(GraphQLString)},
-    channelId: {type: new GraphQLNonNull(GraphQLString)},
-    content: {type: new GraphQLNonNull(GraphQLString)},
-  }),
+// export const ServerMessageType = new GraphQLObjectType({
+//   name: 'ServerMessage',
+//   fields: () => ({
+//     serverId: {type: new GraphQLNonNull(GraphQLString)},
+//     channelId: {type: new GraphQLNonNull(GraphQLString)},
+//     content: {type: new GraphQLNonNull(GraphQLString)},
+//   }),
 
-});
+// });
 export const SenderType = new GraphQLObjectType({
   name: 'Sender',
   fields: () => ({
