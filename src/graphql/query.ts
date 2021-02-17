@@ -1,9 +1,10 @@
 import * as graphql from 'graphql';
 import * as _ from 'lodash';
+import {GraphQLError} from 'graphql';
 
 import User, { IUser } from '../models/user-model';
-import Server from '../models/server-model';
-import { UserType,ServerType, FriendRequestType, PrivMessageType, UserNotificationType} from './type';
+import Server, { ITextChannel } from '../models/server-model';
+import { UserType,ServerType, FriendRequestType, PrivMessageType, UserNotificationType, ServerMessageType} from './type';
 
 import {validateToken} from '../middlewares/validate-token';
 import { AuthenticationError } from 'apollo-server-express';
@@ -35,6 +36,19 @@ export const RootQuery = new GraphQLObjectType({
         };
         return returnData
       },
+    },
+    User: {
+      type: new GraphQLNonNull(UserType),
+      args: {token: { type: GraphQLString }},
+      async resolve(parent: any, args: any, context: IContext) {
+        if(!args.token)throw new AuthenticationError('Token not found!');
+        const {id} = validateToken(args.token);
+        const user = await User.findOne({_id: id});
+        if(!user) throw new AuthenticationError('User not found!');
+
+        return user
+      },
+
     },
     servers: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ServerType))),
@@ -75,8 +89,29 @@ export const RootQuery = new GraphQLObjectType({
         return friendRequest
       },
 
-    },ServerData: {
-      type: new GraphQLNonNull((PrivMessageType)),
+    },
+    ServerData: {
+      type: new GraphQLNonNull(ServerType),
+      args: {
+        token: { type: GraphQLString },
+        serverId: { type: GraphQLString },
+      },
+      async resolve(parent: any, args: any, context: IContext) {
+        if(!args.token)throw new AuthenticationError('Token not found!');
+        if(!args.serverId) throw new GraphQLError('Server ID was not given!');
+        const {id} = validateToken(args.token);
+        const user = await User.findOne({_id: id});
+        if(!user) throw new AuthenticationError('User not found!');
+        const server = await Server.findOne({_id: args.serverId});
+        if (!server) return new GraphQLError('Server not found!');
+        const isMember = server.users.find(x => x._id === user._id);
+        if(!isMember) throw new AuthenticationError('User must be a member off the server!');
+
+        return server
+      },
+
+    },PrivMessages: {
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(PrivMessageType))),
       args: {
         token: { type: GraphQLString },
         senderId: { type: GraphQLString },
@@ -96,13 +131,12 @@ export const RootQuery = new GraphQLObjectType({
         return messageList
       },
 
-    }
-    
-    ,PrivMessages: {
-      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(PrivMessageType))),
+    },ChannelMessages: {
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ServerMessageType))),
       args: {
         token: { type: GraphQLString },
-        senderId: { type: GraphQLString },
+        serverId: { type: GraphQLString },
+        channelId: { type: GraphQLString },
         offset: { type: GraphQLInt },
         limit: { type: GraphQLInt }
       },
@@ -111,12 +145,20 @@ export const RootQuery = new GraphQLObjectType({
         const {id} = validateToken(args.token);
         const user = await User.findOne({_id: id});
         if(!user) throw new AuthenticationError('User not found!');
-        const messageList = await PrivateMessage.
-          find({ $or:[{senderId:args.senderId, receiverId:user._id},{senderId:user._id, receiverId:args.senderId}]}).
-          limit(args.limit).
-          skip(args.offset).
-          sort({createdAt: 'desc'})
-        return messageList
+        //const server = await Server.findOne({_id: args.serverId});
+        //if (!server) return new GraphQLError('Server not found!');
+        //const isMember = server.users.find(x => x._id === user._id);
+        //if(!isMember) throw new AuthenticationError('User must be a member off the server!');
+        
+      const channel = await Server.findOne({_id: args.serverId}).select({ textChannels: {$elemMatch: {_id: args.channelId}}});
+      const messages = _.sortBy(channel?.textChannels[0].messages,'createdAt')
+      return messages
+        // const messageList = await PrivateMessage.
+        //   find({ $or:[{senderId:args.senderId, receiverId:user._id},{senderId:user._id, receiverId:args.senderId}]}).
+        //   limit(args.limit).
+        //   skip(args.offset).
+        //   sort({createdAt: 'desc'})
+        // return messageList
       },
 
     },
