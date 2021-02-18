@@ -39,8 +39,6 @@ export async function createServer(
         _id: new mongoose.Types.ObjectId().toHexString(),
         serverId: serverId,
         name: 'Default Text Channel',
-        messages: {},
-
       },
     });
     return await server.save();
@@ -74,7 +72,7 @@ export async function createMessage(
       user: context.user,
       content: args.content,
     }
-    channel.messages.push(newMessage);
+    channel.messages?.push(newMessage);
     pubsub.publish("newChannelMessage", {newChannelMessage: newMessage})      
 
     return await server.save();
@@ -90,7 +88,6 @@ export async function createTextChannel(
 ): Promise<IServer | Error> {
 
   try {
-    //falta realizar a verificacao    
     if (!context.user) throw new AuthenticationError('User not found!');
     const server = await Server.findOne({_id: args.serverId});
     if (!server) return new GraphQLError('Server not found!');
@@ -100,7 +97,7 @@ export async function createTextChannel(
       _id: new mongoose.Types.ObjectId().toHexString(),
       serverId: server._id,
       name: args.channelName,
-      messages: {} as [IServerMessage],
+      
     }
     
     server.textChannels.push(newChannel)

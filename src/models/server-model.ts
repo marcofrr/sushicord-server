@@ -31,7 +31,7 @@ export interface ITextChannel  {
   _id: string;
   serverId: string;
   name: string;
-  messages: [IServerMessage];
+  messages?: [IServerMessage];
 }
 
 const UsersSchema = new Schema({
@@ -62,7 +62,7 @@ const TextChannelSchema = new Schema({
   _id: {type: String, required: true},
   serverId: {type: String, required: true},
   name: {type: String, required: true},
-  messages: [MessageSchema],
+  messages: {type: [MessageSchema], required: false},
 });
 
 const ServerSchema = new Schema(
