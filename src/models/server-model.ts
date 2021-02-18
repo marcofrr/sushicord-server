@@ -22,11 +22,12 @@ export interface IVoiceChannel extends mongoose.Document {
 export interface IServerMessage {
   _id: string;
   serverId: string;
+  channelId: string;
   user: IUser;
   content: string;
 }
 
-export interface ITextChannel extends mongoose.Document {
+export interface ITextChannel  {
   _id: string;
   serverId: string;
   name: string;
@@ -45,6 +46,7 @@ const UsersSchema = new Schema({
 const MessageSchema = new Schema({
   _id: {type: String, required: true},
   serverId: {type: String, required: true},
+  channelId: {type: String, required: true},
   user: UsersSchema,
   content: {type: String, required: true},
 });

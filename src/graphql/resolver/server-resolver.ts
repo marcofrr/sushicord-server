@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import {GraphQLError} from 'graphql';
 import * as mongoose from 'mongoose';
 import {IContext} from '../../index';
-import Server, {IServer, IServerMessage} from '../../models/server-model';
+import Server, {IServer, IServerMessage, ITextChannel} from '../../models/server-model';
 import Invite from '../../models/server-invite-model';
 import {loginRules, signUpRules} from '../../modelRules/user-rules';
 import ServerInvite from '../../models/server-invite-model';
@@ -14,6 +14,7 @@ import serverInviteModel, {
 } from '../../models/server-invite-model';
 import {AuthenticationError} from 'apollo-server-express';
 import Context from '../context';
+import { pubsub } from '../pubsub';
 
 export async function createServer(
   parent: any,
@@ -38,12 +39,7 @@ export async function createServer(
         _id: new mongoose.Types.ObjectId().toHexString(),
         serverId: serverId,
         name: 'Default Text Channel',
-        messages: {
-          _id: new mongoose.Types.ObjectId().toHexString(),
-          serverId: serverId,
-          user: context.user,
-          content: 'Mensagem de Exemplo!!',
-        },
+        messages: {},
 
       },
     });
@@ -74,15 +70,47 @@ export async function createMessage(
     const newMessage : IServerMessage = {
       _id: new mongoose.Types.ObjectId().toHexString(),
       serverId: server._id,
+      channelId: channel._id,
       user: context.user,
       content: args.content,
     }
     channel.messages.push(newMessage);
+    pubsub.publish("newChannelMessage", {newChannelMessage: newMessage})      
+
     return await server.save();
   } catch (err) {
     return new GraphQLError(err);
   }
 }
+
+export async function createTextChannel(
+  parent: any,
+  args: any,
+  context: IContext
+): Promise<IServer | Error> {
+
+  try {
+    //falta realizar a verificacao    
+    if (!context.user) throw new AuthenticationError('User not found!');
+    const server = await Server.findOne({_id: args.serverId});
+    if (!server) return new GraphQLError('Server not found!');
+    if(context.user._id != server.owner) return new GraphQLError('Must be owner to create a channel!');
+    
+    const newChannel : ITextChannel = {
+      _id: new mongoose.Types.ObjectId().toHexString(),
+      serverId: server._id,
+      name: args.channelName,
+      messages: {} as [IServerMessage],
+    }
+    
+    server.textChannels.push(newChannel)
+
+    return await server.save();
+  } catch (err) {
+    return new GraphQLError(err);
+  }
+}
+
 
 export async function createInvite(
   parent: any,

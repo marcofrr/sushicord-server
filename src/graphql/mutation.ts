@@ -23,6 +23,7 @@ import {
   createServer,
   joinServer,
   createMessage,
+  createTextChannel,
 } from './resolver/server-resolver';
 import {
   createFriendRequest
@@ -57,6 +58,14 @@ export const Mutation = new GraphQLObjectType({
         name: {type: new GraphQLNonNull(GraphQLString)},
       },
       resolve: createServer,
+    },
+    createTextChannel: {
+      type: ServerType,
+      args: {
+        serverId: {type: new GraphQLNonNull(GraphQLString)},
+        channelName: {type: new GraphQLNonNull(GraphQLString)},
+      },
+      resolve: createTextChannel,
     },
     createServerInvite: {
       type: ServerInviteType,
