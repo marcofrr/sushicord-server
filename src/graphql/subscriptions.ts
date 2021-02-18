@@ -2,7 +2,7 @@ import * as graphql from 'graphql';
 
 import User, { IUser } from '../models/user-model';
 import Server from '../models/server-model';
-import { UserType,ServerType, FriendRequestType, PrivMessageType, ServerMessageType} from './type';
+import { UserType,ServerType, FriendRequestType, PrivMessageType, ServerMessageType, TextChannelType} from './type';
 
 import {validateToken} from '../middlewares/validate-token';
 import { extendSchemaImpl } from 'graphql/utilities/extendSchema';
@@ -55,6 +55,20 @@ export const Subscription = new GraphQLObjectType({
                     async (payload, variables,context: IContext) => {
 
                         return payload.newChannelMessage.channelId === variables.channelId;
+
+                    },
+                  ),
+            },
+            newTextChannel: {
+                type: TextChannelType,
+                args: {        
+                    serverId: {type: new GraphQLNonNull(GraphQLString)},
+                },
+                subscribe: withFilter(
+                    () => pubsub.asyncIterator('newTextChannel'),
+                    async (payload, variables,context: IContext) => {
+
+                        return payload.newTextChannel.serverId === variables.serverId;
 
                     },
                   ),

@@ -97,12 +97,14 @@ export async function createTextChannel(
       _id: new mongoose.Types.ObjectId().toHexString(),
       serverId: server._id,
       name: args.channelName,
-      
+
     }
-    
+
     server.textChannels.push(newChannel)
+    pubsub.publish("newTextChannel", {newTextChannel: newChannel})      
 
     return await server.save();
+  
   } catch (err) {
     return new GraphQLError(err);
   }
@@ -119,9 +121,6 @@ export async function createInvite(
 
     const server = await Server.findOne({_id: args.serverId});
     if (!server) return new GraphQLError('Server not found!');
-
-
-
 
     const isMember = server.users.find(x => x._id === context.user?._id);
     if (!isMember) throw new AuthenticationError('User not found!');
