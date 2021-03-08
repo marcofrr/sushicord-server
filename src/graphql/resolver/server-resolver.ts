@@ -71,6 +71,7 @@ export async function createMessage(
       channelId: channel._id,
       user: context.user,
       content: args.content,
+      createdAt: Date.now().toString()
     }
     channel.messages?.push(newMessage);
     pubsub.publish("newChannelMessage", {newChannelMessage: newMessage})      

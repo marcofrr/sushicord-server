@@ -53,7 +53,6 @@ export const Subscription = new GraphQLObjectType({
                 subscribe: withFilter(
                     () => pubsub.asyncIterator('newChannelMessage'),
                     async (payload, variables,context: IContext) => {
-
                         return payload.newChannelMessage.channelId === variables.channelId;
 
                     },
@@ -72,7 +71,21 @@ export const Subscription = new GraphQLObjectType({
 
                     },
                   ),
-            }
+            },
+            // newPrivMessageNotification: {
+            //     type: PrivMessageType,
+            //     args: {        
+            //         receiverId: {type: new GraphQLNonNull(GraphQLString)},
+            //     },
+            //     subscribe: withFilter(
+            //         () => pubsub.asyncIterator('newPrivMessageNotification'),
+            //         async (payload, variables,context: IContext) => {
+
+            //             return payload.newPrivMessageNotification.receiverId === variables.receiverId;
+
+            //         },
+            //       ),
+            // }
         },
     });
   

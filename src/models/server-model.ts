@@ -25,6 +25,7 @@ export interface IServerMessage {
   channelId: string;
   user: IUser;
   content: string;
+  createdAt: string;
 }
 
 export interface ITextChannel  {
@@ -49,6 +50,7 @@ const MessageSchema = new Schema({
   channelId: {type: String, required: true},
   user: UsersSchema,
   content: {type: String, required: true},
+  createdAt: {type: String, required: true}
 });
 
 const VoiceChannelSchema = new Schema({
@@ -74,7 +76,7 @@ const ServerSchema = new Schema(
     voiceChannels: [VoiceChannelSchema],
     textChannels: [TextChannelSchema],
   },
-  {_id:false,timestamps: true}
+  {_id:false,timestamps: false}
 );
 
 export default mongoose.model<IServer>('Server', ServerSchema);

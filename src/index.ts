@@ -44,11 +44,21 @@ const server = new ApolloServer({
 
   },
   subscriptions: {
-    onConnect: async (connectionParams: { token: string | undefined; }, webSocket: any) => {
+    onConnect: async (connectionParams : any, webSocket : any, context : any, c : IContext) => {
+      const {id} = validateToken(connectionParams.token);
+      const user = await User.findOne({_id: id});
+      if(user)      console.log(`${user?.userName} has connected`)
+
+
+      return user
     },
-    onDisconnect: (webSocket: any, context : IContext) => {
+    onDisconnect: async (webSocket : any, context : any) => {
+      const initialContext = await context.initPromise;
+      if(initialContext) console.log(`${initialContext.userName} has disconnected!`)
+
+
     },
-  },
+  }
 });
 server.applyMiddleware({app});
 const httpServer = http.createServer(app);
