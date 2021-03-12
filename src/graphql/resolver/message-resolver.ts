@@ -15,7 +15,7 @@ import serverInviteModel, {
 import {AuthenticationError} from 'apollo-server-express';
 import Context from '../context';
 import PrivateMessage,{ IPrivMessage } from '../../models/private-message-model';
-import User from '../../models/user-model'
+import User, { IUser } from '../../models/user-model'
 import { pubsub } from '../pubsub';
 
 export async function createPrivMessage(
@@ -35,9 +35,20 @@ export async function createPrivMessage(
         senderId: context.user._id,
         receiverId: args.receiverId,
         content: args.content,
+        isSeen: false,
         createdAt: Date.now().toString()
       })
-      pubsub.publish("newPrivMessage", {newPrivMessage: newMessage})      
+      pubsub.publish("newPrivMessage", {newPrivMessage: newMessage})
+      const user = context.user
+      pubsub.publish("newMessageNotification", {
+        newMessageNotification: {
+          message:newMessage,
+          sender: context.user
+        }})
+
+
+
+        
       return await newMessage.save();
     } catch (err) {
       return new GraphQLError(err);
@@ -64,6 +75,31 @@ export async function getPrivMessage(
     })
     //fazer o trigger da sub
     return await newMessage.save();
+  } catch (err) {
+    return new GraphQLError(err);
+  }
+}
+
+export async function toggleUnseenMessages(
+  parent: any,
+  args: any,
+  context: IContext
+): Promise<IUser | Error> {
+
+  try {
+    //falta realizar a verificacao    
+    if (!context.user) throw new AuthenticationError('User not found!');
+    const sender = await User.findOne({_id: args.senderId});
+    if (!sender) return new GraphQLError('Sender was not found!');
+  
+    // const messages = PrivateMessage.updateMany({receiverId: context.user.id,senderId: args.senderId}, {isSeen: true})
+    const messages = await PrivateMessage.bulkWrite([{
+      updateMany: {
+        filter: { receiverId: context.user.id, senderId: args.senderId},
+        update: { isSeen: true}
+      }
+    }])
+    return sender
   } catch (err) {
     return new GraphQLError(err);
   }

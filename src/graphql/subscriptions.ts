@@ -2,7 +2,7 @@ import * as graphql from 'graphql';
 
 import User, { IUser } from '../models/user-model';
 import Server from '../models/server-model';
-import { UserType,ServerType, FriendRequestType, PrivMessageType, ServerMessageType, TextChannelType} from './type';
+import { UserType,ServerType, FriendRequestType, PrivMessageType, ServerMessageType, TextChannelType, NewMessageNotificationType} from './type';
 
 import {validateToken} from '../middlewares/validate-token';
 import { extendSchemaImpl } from 'graphql/utilities/extendSchema';
@@ -72,20 +72,18 @@ export const Subscription = new GraphQLObjectType({
                     },
                   ),
             },
-            // newPrivMessageNotification: {
-            //     type: PrivMessageType,
-            //     args: {        
-            //         receiverId: {type: new GraphQLNonNull(GraphQLString)},
-            //     },
-            //     subscribe: withFilter(
-            //         () => pubsub.asyncIterator('newPrivMessageNotification'),
-            //         async (payload, variables,context: IContext) => {
-
-            //             return payload.newPrivMessageNotification.receiverId === variables.receiverId;
-
-            //         },
-            //       ),
-            // }
+            newMessageNotification: {
+                type: NewMessageNotificationType,
+                args: {        
+                    receiverId: {type: new GraphQLNonNull(GraphQLString)},
+                },
+                subscribe: withFilter(
+                    () => pubsub.asyncIterator('newMessageNotification'),
+                    async (payload, variables,context: IContext) => {
+                        return true
+                    },
+                  ),
+            }
         },
     });
   

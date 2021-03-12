@@ -14,10 +14,16 @@ import { GraphQLInt } from 'graphql';
 import PrivateMessage from '../models/private-message-model'
 const {GraphQLObjectType, GraphQLID, GraphQLList,GraphQLString, GraphQLNonNull } = graphql;
 
-interface INotificationUser  {
-  user: IUser;
+// interface INotificationUser  {
+//   user: IUser;
+//   unreadMessages: number;
+// }     
+interface DirectMessage {
+  userId : string;
+  userName: string;
+  status: string; 
   unreadMessages: number;
-}     
+}
 
 export const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
@@ -176,16 +182,18 @@ export const RootQuery = new GraphQLObjectType({
         const lastMessages = await PrivateMessage.find({ receiverId:user._id}).sort({ createdAt: -1});
         const lastMessagesByUser = _.uniqBy(lastMessages,'senderId');
    
-        const res: INotificationUser[]=[];
+        const res: DirectMessage[]=[];
 
         for(const item of lastMessagesByUser){
           const u =  await User.findOne({_id: item.senderId});
           if(u){
             const unreadMessages = await PrivateMessage.find({senderId: item.senderId, isSeen:false}).countDocuments()
 
-            const aux : INotificationUser = {
-              user: u,
-              unreadMessages:unreadMessages
+            const aux : DirectMessage = {
+              userId: u._id,
+              userName: u.userName,
+              status: u.status,
+              unreadMessages:unreadMessages,
             }
             res.push(aux)
           }

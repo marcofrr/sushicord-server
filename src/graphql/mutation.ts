@@ -28,7 +28,7 @@ import {
 import {
   createFriendRequest
 } from  './resolver/user-resolver'
-import { createPrivMessage, getPrivMessage } from './resolver/message-resolver';
+import { createPrivMessage, getPrivMessage, toggleUnseenMessages } from './resolver/message-resolver';
 
 
 export const Mutation = new GraphQLObjectType({
@@ -112,6 +112,13 @@ export const Mutation = new GraphQLObjectType({
         content: {type: new GraphQLNonNull(GraphQLString)},
       },
       resolve: createPrivMessage,
+    },
+    toggleUnseenMessages: {
+      type: UserType,
+      args: {
+        senderId: {type: new GraphQLNonNull(GraphQLString)},
+      },
+      resolve: toggleUnseenMessages,
     },
   },
 });

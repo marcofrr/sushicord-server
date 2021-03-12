@@ -11,7 +11,7 @@ import {
 export const UserType = new GraphQLObjectType({
   name: 'User',
   fields: () => ({
-    id: {type: new GraphQLNonNull(GraphQLID)},
+    _id: {type: new GraphQLNonNull(GraphQLID)},
     email: {type: new GraphQLNonNull(GraphQLString)},
     userName: {type: new GraphQLNonNull(GraphQLString)},
     nickName: {type: GraphQLString},
@@ -24,12 +24,20 @@ export const UserType = new GraphQLObjectType({
 export const UserNotificationType = new GraphQLObjectType({
   name: 'UserNotification',
   fields: () => ({
-    user: {type: new GraphQLNonNull(UserType)},
-    unreadMessages: {type: GraphQLInt},
+    userId: {type: new GraphQLNonNull(GraphQLString)},
+    userName: {type: new GraphQLNonNull(GraphQLString)},
+    status: {type: new GraphQLNonNull(GraphQLString)},
+    unreadMessages: {type: new GraphQLNonNull(GraphQLInt)},
   }),
 });
 
-
+export const NewMessageNotificationType = new GraphQLObjectType({
+  name: 'NewMessageNotification',
+  fields: () => ({
+    message: {type: PrivMessageType},
+    sender: {type: UserType},
+  }),
+});
 
 export const TokenType = new GraphQLObjectType({
   name: 'Token',

@@ -30,7 +30,7 @@ export async function signup(parent: any, args: any): Promise<IUser | Error> {
       nickName: null,
       password: args.password,
       birthDate: args.birthDate,
-      status: 'Online',
+      status: 'online',
     });
     return await user.save();
   } catch (err) {
