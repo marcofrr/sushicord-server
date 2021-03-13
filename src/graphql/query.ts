@@ -13,11 +13,7 @@ import FriendRequest from '../models/friend-request-model';
 import { GraphQLInt } from 'graphql';
 import PrivateMessage from '../models/private-message-model'
 const {GraphQLObjectType, GraphQLID, GraphQLList,GraphQLString, GraphQLNonNull } = graphql;
-
-// interface INotificationUser  {
-//   user: IUser;
-//   unreadMessages: number;
-// }     
+     
 interface DirectMessage {
   userId : string;
   userName: string;
