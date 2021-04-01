@@ -2,18 +2,7 @@ import * as _ from 'lodash';
 import {GraphQLError} from 'graphql';
 import * as mongoose from 'mongoose';
 import {IContext} from '../../index';
-import Server, {IServer, IServerMessage} from '../../models/server-model';
-import Invite from '../../models/server-invite-model';
-import {loginRules, signUpRules} from '../../modelRules/user-rules';
-import ServerInvite from '../../models/server-invite-model';
-import {validateToken} from '../../middlewares/validate-token';
-import {createServerRules} from '../../modelRules/server-rules';
-
-import serverInviteModel, {
-  IServerInvite,
-} from '../../models/server-invite-model';
 import {AuthenticationError} from 'apollo-server-express';
-import Context from '../context';
 import PrivateMessage,{ IPrivMessage } from '../../models/private-message-model';
 import User, { IUser } from '../../models/user-model'
 import { pubsub } from '../pubsub';
@@ -42,7 +31,7 @@ export async function createPrivMessage(
       const user = context.user
       pubsub.publish("newMessageNotification", {
         newMessageNotification: {
-          message:newMessage,
+          newMessage,
           sender: context.user
         }})
 

@@ -58,12 +58,20 @@ export const ChannelType = new GraphQLObjectType({
 export const ServerMessageType = new GraphQLObjectType({
   name: 'ServerMessage',
   fields: () => ({
-    id: {type: new GraphQLNonNull(GraphQLID)},
+    _id: {type: new GraphQLNonNull(GraphQLID)},
     serverId: {type: new GraphQLNonNull(GraphQLID)},
     name: {type: new GraphQLNonNull(GraphQLString)},
-    user: {type: new GraphQLNonNull(UserType)},
+    user: {type: new GraphQLNonNull(GraphQLString)},
     content: {type: new GraphQLNonNull(GraphQLString)},
+    createdAt: {type: new GraphQLNonNull(GraphQLString)},
+  }),
+});
 
+export const ServerMessageSubType = new GraphQLObjectType({
+  name: 'ServerMessageSub',
+  fields: () => ({
+    message: {type: new GraphQLNonNull(ServerMessageType)},
+    user: {type: new GraphQLNonNull(UserType)},
   }),
 });
 
@@ -153,8 +161,17 @@ export const FriendRequestType = new GraphQLObjectType({
   name: 'FriendRequest',
   fields: () => ({
     _id: {type: new GraphQLNonNull(GraphQLString)},
-    sender: {type: new GraphQLNonNull(SenderType)},
-    receiver: {type: new GraphQLNonNull(ReceiverType)},
+    senderId: {type: new GraphQLNonNull(GraphQLString)},
+    receiverId: {type: new GraphQLNonNull(GraphQLString)},
+  }),
+});
+
+
+export const FriendRequestUserType = new GraphQLObjectType({
+  name: 'FriendRequestUser',
+  fields: () => ({
+    friendRequest: {type: new GraphQLNonNull(FriendRequestType)},
+    sender: {type: new GraphQLNonNull(UserType)},
   }),
 });
 
@@ -168,6 +185,23 @@ export const PrivMessageType = new GraphQLObjectType({
     isSeen: {type: new GraphQLNonNull(GraphQLBoolean)},
     createdAt: {type: new GraphQLNonNull(GraphQLString)},
 
+  }),
+});
+
+export const userStatusServerType = new GraphQLObjectType({
+  name: 'userStatusServer',
+  fields: () => ({
+    user: {type: new GraphQLNonNull(UserType)},
+    servers: {type: new GraphQLList(ServerType)},
+  }),
+});
+
+export const userStatusType = new GraphQLObjectType({
+  name: 'userStatus',
+  fields: () => ({
+    user: {type: new GraphQLNonNull(UserType)},
+    servers: {type: new GraphQLList(ServerType)},
+    friends: {type: new GraphQLList(GraphQLString)},
   }),
 });
 

@@ -9,21 +9,21 @@ export interface IServer extends mongoose.Document {
   owner: string;
   voiceChannels: [IVoiceChannel];
   textChannels: [ITextChannel];
-  users: [IUser];
+  users: [string];
 }
 
 export interface IVoiceChannel extends mongoose.Document {
   _id: string;
   serverId: string;
   name: string;
-  users: [IUser];
+  users?: [string];
 }
 
 export interface IServerMessage {
   _id: string;
   serverId: string;
   channelId: string;
-  user: IUser;
+  userId: string;
   content: string;
   createdAt: string;
 }
@@ -35,20 +35,13 @@ export interface ITextChannel  {
   messages?: [IServerMessage];
 }
 
-const UsersSchema = new Schema({
-  _id: {type: String, required: true},
-  email: {type: String, required: true},
-  userName: {type: String, required: true},
-  nickName: {type: String, required: false},
-  birthDate: {type: String, required: true},
-  status: {type: String, required: false},
-});
+
 
 const MessageSchema = new Schema({
   _id: {type: String, required: true},
   serverId: {type: String, required: true},
   channelId: {type: String, required: true},
-  user: UsersSchema,
+  userId: {type: String, required: true},
   content: {type: String, required: true},
   createdAt: {type: String, required: true}
 });
@@ -57,7 +50,7 @@ const VoiceChannelSchema = new Schema({
   _id: {type: String, required: true},
   serverId: {type: String, required: true},
   name: {type: String, required: true},
-  users: [UsersSchema],
+  users: [String],
 });
 
 const TextChannelSchema = new Schema({
@@ -72,7 +65,7 @@ const ServerSchema = new Schema(
     _id: {type: String, required: true},
     name: {type: String, required: true},
     owner: {type: String, required: true},
-    users: [UsersSchema],
+    users: [String],
     voiceChannels: [VoiceChannelSchema],
     textChannels: [TextChannelSchema],
   },

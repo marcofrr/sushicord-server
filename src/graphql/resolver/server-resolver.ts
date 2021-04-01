@@ -15,6 +15,7 @@ import serverInviteModel, {
 import {AuthenticationError} from 'apollo-server-express';
 import Context from '../context';
 import { pubsub } from '../pubsub';
+import { userStatusServerType } from '../type';
 
 export async function createServer(
   parent: any,
@@ -29,7 +30,7 @@ export async function createServer(
       _id: serverId,
       name: args.name,
       owner: context.user._id,
-      users: context.user,
+      users: context.user._id,
       voiceChannels:{
         _id: new mongoose.Types.ObjectId().toHexString(),
         serverId: serverId,
@@ -60,7 +61,7 @@ export async function createMessage(
     const server = await Server.findOne({_id: args.serverId});
     if (!server) return new GraphQLError('Server not found!');
 
-    const isMember = server.users.find(x => x._id === context.user?._id);
+    const isMember = server.users.find(x => x === context.user?._id);
     if (!isMember) throw new AuthenticationError('User not found!');    
     const channel = server.textChannels.find(x => x._id === args.channelId);
     if(!channel)return new GraphQLError('Channel not found!');
@@ -69,12 +70,16 @@ export async function createMessage(
       _id: new mongoose.Types.ObjectId().toHexString(),
       serverId: server._id,
       channelId: channel._id,
-      user: context.user,
+      userId: context.user._id,
       content: args.content,
       createdAt: Date.now().toString()
     }
     channel.messages?.push(newMessage);
-    pubsub.publish("newChannelMessage", {newChannelMessage: newMessage})      
+    const user = context.user
+    pubsub.publish("newChannelMessage", {newChannelMessage:{
+      message: {newMessage},
+      user: {user}
+    }})      
 
     return await server.save();
   } catch (err) {
@@ -123,7 +128,7 @@ export async function createInvite(
     const server = await Server.findOne({_id: args.serverId});
     if (!server) return new GraphQLError('Server not found!');
 
-    const isMember = server.users.find(x => x._id === context.user?._id);
+    const isMember = server.users.find(x => x === context.user?._id);
     if (!isMember) throw new AuthenticationError('User not found!');
 
     const invite = new serverInviteModel({
@@ -148,16 +153,16 @@ export async function joinServer(
     if (!invite) return new GraphQLError('Invite does not exist!');
     const server = await Server.findOne({_id: invite.serverId});
     if (!server) return new GraphQLError('Cannot find server!');
-    const isMember = server.users.find(x => x._id === context.user?._id);
+    const isMember = server.users.find(x => x === context.user?._id);
     if (!isMember) throw new AuthenticationError('User already joined!');
 
-    server.users.push(context.user);
+    server.users.push(context.user._id);
 
     return await server.save();
   } catch (err) {
     return new GraphQLError(err);
   }
-
-
-
 }
+
+
+//leave server

@@ -1,5 +1,4 @@
 import * as mongoose from 'mongoose';
-import {IUser} from './user-model';
 
 const Schema = mongoose.Schema;
 
@@ -21,7 +20,6 @@ const PrivateMessageSchema = new Schema(
     content: {type: String, required: true},
     isSeen: {type: Boolean, required: true, default:false},
     createdAt: {type: String, required: true},
-
   },
   {_id:false,timestamps: false}
 );

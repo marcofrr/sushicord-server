@@ -3,38 +3,32 @@ import * as bcrypt from 'bcrypt';
 
 const Schema = mongoose.Schema;
 
-export enum Status {
-  ON = 'Online',
-  OFF = 'Offline',
-  DND = 'Do Not Disturb',
-  INVI = 'Invisible',
+export enum STATUS {
+  ON = 'online',
+  OFF = 'offline',
+  INVI = 'invisible',
 }
 
-export interface IUser extends mongoose.Document {
+export interface IUser extends mongoose.Document{
   _id: string;
   email: string;
   userName: string;
   nickName: string;
   password: string;
   birthDate: string;
-  status: Status;
+  status: STATUS;
   friends: [IFriend];
 }
 
 export interface IFriend  {
   _id: string;
-  email: string;
-  userName: string;
 }
 
 const FriendSchema = new Schema(
   {
     _id: {type: String, required: true},
-    email: {type: String, required: true},
-    userName: {type: String, required: true},
-    status: {type: Status, required: false},
   },
-  {_id:false,timestamps: true}
+  {_id:false,timestamps: false}
 );
 
 const UserSchema = new Schema(
@@ -45,10 +39,10 @@ const UserSchema = new Schema(
     nickName: {type: String, required: false},
     password: {type: String, required: true},
     birthDate: {type: String, required: true},
-    status: {type: Status, required: false},
+    status: {type: STATUS, required: false},
     friends: [FriendSchema]
   },
-  {_id:false,timestamps: true}
+  {_id:false,timestamps: false}
 );
 
 UserSchema.pre('save', function (next: mongoose.HookNextFunction): void {

@@ -4,7 +4,7 @@ import {GraphQLError} from 'graphql';
 
 import User, { IUser } from '../models/user-model';
 import Server, { ITextChannel } from '../models/server-model';
-import { UserType,ServerType, FriendRequestType, PrivMessageType, UserNotificationType, ServerMessageType} from './type';
+import { UserType,ServerType, FriendRequestType, PrivMessageType, UserNotificationType, ServerMessageType, FriendRequestUserType} from './type';
 
 import {validateToken} from '../middlewares/validate-token';
 import { AuthenticationError } from 'apollo-server-express';
@@ -12,6 +12,7 @@ import { IContext } from '../index'
 import FriendRequest from '../models/friend-request-model';
 import { GraphQLInt } from 'graphql';
 import PrivateMessage from '../models/private-message-model'
+import { getFriendRequests, getFriends } from './resolver/friend-resolver';
 const {GraphQLObjectType, GraphQLID, GraphQLList,GraphQLString, GraphQLNonNull } = graphql;
      
 interface DirectMessage {
@@ -68,28 +69,32 @@ export const RootQuery = new GraphQLObjectType({
     friends: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserType))),
       args: {token: { type: GraphQLString }},
-      async resolve(parent: any, args: any, context: IContext) {
-        if(!args.token)throw new AuthenticationError('Token not found!');
-        const {id} = validateToken(args.token);
-        const user = await User.findOne({_id: id});
-        if(!user) throw new AuthenticationError('User not found!');
-        // const serverList = await Server.find({users : {$elemMatch : {_id: user._id}}}).sort({name:'asc'})
-        //console.log(context.user)
-        return user.friends
-      },
-    },  
+      resolve: getFriends,
+        // if(!args.token)throw new AuthenticationError('Token not found!');
+        // const {id} = validateToken(args.token);
+        // const user = await User.findOne({_id: id});
+        // if(!user) throw new AuthenticationError('User not found!');
+        // // const serverList = await Server.find({users : {$elemMatch : {_id: user._id}}}).sort({name:'asc'})
+        // //console.log(context.user)
+        // return user.friends
+    },   
     FriendRequests: {
-      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(FriendRequestType))),
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(FriendRequestUserType))),
       args: {token: { type: GraphQLString }},
-      async resolve(parent: any, args: any, context: IContext) {
-        if(!args.token)throw new AuthenticationError('Token not found!');
-        const {id} = validateToken(args.token);
-        const user = await User.findOne({_id: id});
-        if(!user) throw new AuthenticationError('User not found!');
+      resolve: getFriendRequests,
+      // async resolve(parent: any, args: any, context: IContext) {
+      //   if(!args.token)throw new AuthenticationError('Token not found!');
+      //   const {id} = validateToken(args.token);
+      //   const user = await User.findOne({_id: id});
+      //   if(!user) throw new AuthenticationError('User not found!');
 
-        const friendRequest = await FriendRequest.find({'receiver._id' : id});
-        return friendRequest
-      },
+      //   const requests = await FriendRequest.find({'receiverId' : id});
+      //   console.log(requests) 
+      //   const list = requests.map(x => x.senderId)
+      //   const users = await User.find({ '_id': { $in: list } });
+      //   // console.log(users)
+      //   return users
+      // },
 
     },
     ServerData: {
@@ -106,7 +111,7 @@ export const RootQuery = new GraphQLObjectType({
         if(!user) throw new AuthenticationError('User not found!');
         const server = await Server.findOne({_id: args.serverId});
         if (!server) return new GraphQLError('Server not found!');
-        const isMember = server.users.find(x => x._id === user._id);
+        const isMember = server.users.find(x => x === user._id);
         if(!isMember) throw new AuthenticationError('User must be a member off the server!');
 
         return server
@@ -176,6 +181,8 @@ export const RootQuery = new GraphQLObjectType({
         if(!user) throw new AuthenticationError('User not found!');
 
         const lastMessages = await PrivateMessage.find({ receiverId:user._id}).sort({ createdAt: -1});
+        console.log('res',lastMessages)
+
         const lastMessagesByUser = _.uniqBy(lastMessages,'senderId');
    
         const res: DirectMessage[]=[];
@@ -195,9 +202,32 @@ export const RootQuery = new GraphQLObjectType({
           }
 
         }
+
         return res  
       },
 
-    },   
+    },
+    ServerMembers: {
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserType))),
+      args: {
+        token: { type: GraphQLString },
+        serverId: { type: GraphQLString },
+      },
+      async resolve(parent: any, args: any, context: IContext) {
+        if(!args.token)throw new AuthenticationError('Token not found!');
+        if(!args.serverId)throw new AuthenticationError('Server id not found!');       
+        const {id} = validateToken(args.token);
+        const user = await User.findOne({_id: id});
+        if(!user) throw new AuthenticationError('User not found!');
+        const server = await Server.findOne({_id: args.serverId});
+        if (!server) return new GraphQLError('Server not found!');
+        const isMember = server.users.find(x => x === user._id);
+        if(!isMember) throw new AuthenticationError('User must be a member off the server!');
+        const list = server.users.map(x => x)
+        const members = await User.find({ '_id': { $in: list } });
+        return members
+      },
+
+    },  
   },
 });

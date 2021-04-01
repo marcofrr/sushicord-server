@@ -17,7 +17,7 @@ import {
   FriendRequestType,
   PrivMessageType,
 } from './type';
-import {signup, login, HandleFriendRequest} from './resolver/user-resolver';
+import {signup, login} from './resolver/user-resolver';
 import {
   createInvite,
   createServer,
@@ -26,9 +26,10 @@ import {
   createTextChannel,
 } from './resolver/server-resolver';
 import {
-  createFriendRequest
-} from  './resolver/user-resolver'
-import { createPrivMessage, getPrivMessage, toggleUnseenMessages } from './resolver/message-resolver';
+  createFriendRequest,
+  handleFriendRequest
+} from  './resolver/friend-resolver'
+import { createPrivMessage, getPrivMessage, toggleUnseenMessages } from './resolver/priv-message-resolver';
 
 
 export const Mutation = new GraphQLObjectType({
@@ -103,7 +104,7 @@ export const Mutation = new GraphQLObjectType({
         action: {type: new GraphQLNonNull(GraphQLString)},
         requestId: {type: new GraphQLNonNull(GraphQLString)},
       },
-      resolve: HandleFriendRequest,
+      resolve: handleFriendRequest,
     },
     sendPrivMessage: {
       type: PrivMessageType,
