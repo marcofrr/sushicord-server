@@ -6,6 +6,7 @@ const Schema = mongoose.Schema;
 export interface IServer extends mongoose.Document {
   _id: string;
   name: string;
+  shortId: string;
   owner: string;
   voiceChannels: [IVoiceChannel];
   textChannels: [ITextChannel];
@@ -64,6 +65,7 @@ const ServerSchema = new Schema(
   {
     _id: {type: String, required: true},
     name: {type: String, required: true},
+    shortId:{type: String, required: true},
     owner: {type: String, required: true},
     users: [String],
     voiceChannels: [VoiceChannelSchema],

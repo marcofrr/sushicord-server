@@ -6,7 +6,15 @@ import {AuthenticationError} from 'apollo-server-express';
 import PrivateMessage,{ IPrivMessage } from '../../models/private-message-model';
 import User, { IUser } from '../../models/user-model'
 import { pubsub } from '../pubsub';
+import { validateToken } from '../../middlewares/validate-token';
 
+
+interface UserNotification{
+  userId: string;
+  userName: string;
+  status: string;
+  unreadMessages: number;
+}
 export async function createPrivMessage(
     parent: any,
     args: any,
@@ -93,3 +101,41 @@ export async function toggleUnseenMessages(
     return new GraphQLError(err);
   }
 }
+
+export async function getChatList(
+  parent: any,
+  args: any,
+  context: IContext
+): Promise<UserNotification[] | Error> {
+  
+  if(!args.token)throw new AuthenticationError('Token not found!');
+  const {id} = validateToken(args.token);
+  const user = await User.findOne({_id: id});
+  if(!user) throw new AuthenticationError('User not found!');
+  
+  const lastMessages = await PrivateMessage.find({ receiverId:user._id}).sort({ createdAt: -1});
+  
+  const lastMessagesByUser = _.uniqBy(lastMessages,'senderId');
+  
+  const res: UserNotification[]=[];
+  
+  for(const item of lastMessagesByUser){
+    const u =  await User.findOne({_id: item.senderId});
+    if(u){
+      const unreadMessages = await PrivateMessage.find({senderId: item.senderId, isSeen:false}).countDocuments()
+  
+      const aux : UserNotification = {
+        userId: u._id,
+        userName: u.userName,
+        status: u.status,
+        unreadMessages:unreadMessages,
+      }
+      res.push(aux)
+    }
+  
+  }
+  
+  return res  
+
+}
+

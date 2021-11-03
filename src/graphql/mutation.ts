@@ -19,7 +19,6 @@ import {
 } from './type';
 import {signup, login} from './resolver/user-resolver';
 import {
-  createInvite,
   createServer,
   joinServer,
   createMessage,
@@ -68,17 +67,10 @@ export const Mutation = new GraphQLObjectType({
       },
       resolve: createTextChannel,
     },
-    createServerInvite: {
-      type: ServerInviteType,
-      args: {
-        serverId: {type: new GraphQLNonNull(GraphQLString)},
-      },
-      resolve: createInvite,
-    },
     joinServer: {
-      type: JoinServerType,
+      type: ServerType,
       args: {
-        invite: {type: new GraphQLNonNull(GraphQLString)},
+        shortId: {type: new GraphQLNonNull(GraphQLString)},
       },
       resolve: joinServer,
     },

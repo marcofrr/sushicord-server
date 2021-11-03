@@ -75,13 +75,13 @@ const server = new ApolloServer({
       return user
     },
     onDisconnect: async (webSocket : any, context : any) => {
-      const initialContext = await context.initPromise;
-      // const user = await User.findOne({_id: initialContext._id});
-      const user = initialContext.user
-      if (user){
-        user.status = STATUS.OFF;
-        await user.save()
-      }
+      // const initialContext = await context.initPromise;
+      // // const user = await User.findOne({_id: initialContext._id});
+      // const user = initialContext.user
+      // if (user){
+      //   user.status = STATUS.OFF;
+      //   await user.save()
+      // }
 
       //change status in DB
       //gather all the diferent payloads

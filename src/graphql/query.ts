@@ -4,7 +4,7 @@ import {GraphQLError} from 'graphql';
 
 import User, { IUser } from '../models/user-model';
 import Server, { ITextChannel } from '../models/server-model';
-import { UserType,ServerType, FriendRequestType, PrivMessageType, UserNotificationType, ServerMessageType, FriendRequestUserType} from './type';
+import { UserType,ServerType, FriendRequestType, PrivMessageType, UserNotificationType, ServerMessageType, FriendRequestUserType, ServerMessageUserType} from './type';
 
 import {validateToken} from '../middlewares/validate-token';
 import { AuthenticationError } from 'apollo-server-express';
@@ -13,6 +13,8 @@ import FriendRequest from '../models/friend-request-model';
 import { GraphQLInt } from 'graphql';
 import PrivateMessage from '../models/private-message-model'
 import { getFriendRequests, getFriends } from './resolver/friend-resolver';
+import { getChannelMessages, getMembers, getServers } from './resolver/server-resolver';
+import { getChatList } from './resolver/priv-message-resolver';
 const {GraphQLObjectType, GraphQLID, GraphQLList,GraphQLString, GraphQLNonNull } = graphql;
      
 interface DirectMessage {
@@ -56,46 +58,17 @@ export const RootQuery = new GraphQLObjectType({
     servers: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ServerType))),
       args: {token: { type: GraphQLString }},
-      async resolve(parent: any, args: any, context: IContext) {
-        if(!args.token)throw new AuthenticationError('Token not found!');
-        const {id} = validateToken(args.token);
-        const user = await User.findOne({_id: id});
-        if(!user) throw new AuthenticationError('User not found!');
-        const serverList = await Server.find({users : {$elemMatch : {_id: user._id}}}).sort({name:'asc'})
-        //console.log(context.user)
-        return serverList
-      },
+      resolve: getServers,
     },
     friends: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserType))),
       args: {token: { type: GraphQLString }},
       resolve: getFriends,
-        // if(!args.token)throw new AuthenticationError('Token not found!');
-        // const {id} = validateToken(args.token);
-        // const user = await User.findOne({_id: id});
-        // if(!user) throw new AuthenticationError('User not found!');
-        // // const serverList = await Server.find({users : {$elemMatch : {_id: user._id}}}).sort({name:'asc'})
-        // //console.log(context.user)
-        // return user.friends
     },   
     FriendRequests: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(FriendRequestUserType))),
       args: {token: { type: GraphQLString }},
       resolve: getFriendRequests,
-      // async resolve(parent: any, args: any, context: IContext) {
-      //   if(!args.token)throw new AuthenticationError('Token not found!');
-      //   const {id} = validateToken(args.token);
-      //   const user = await User.findOne({_id: id});
-      //   if(!user) throw new AuthenticationError('User not found!');
-
-      //   const requests = await FriendRequest.find({'receiverId' : id});
-      //   console.log(requests) 
-      //   const list = requests.map(x => x.senderId)
-      //   const users = await User.find({ '_id': { $in: list } });
-      //   // console.log(users)
-      //   return users
-      // },
-
     },
     ServerData: {
       type: new GraphQLNonNull(ServerType),
@@ -139,7 +112,7 @@ export const RootQuery = new GraphQLObjectType({
       },
 
     },ChannelMessages: {
-      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ServerMessageType))),
+      type: new GraphQLList((ServerMessageUserType)),
       args: {
         token: { type: GraphQLString },
         serverId: { type: GraphQLString },
@@ -147,65 +120,14 @@ export const RootQuery = new GraphQLObjectType({
         offset: { type: GraphQLInt },
         limit: { type: GraphQLInt }
       },
-      async resolve(parent: any, args: any, context: IContext) {
-        if(!args.token)throw new AuthenticationError('Token not found!');
-        const {id} = validateToken(args.token);
-        const user = await User.findOne({_id: id});
-        if(!user) throw new AuthenticationError('User not found!');
-        //const server = await Server.findOne({_id: args.serverId});
-        //if (!server) return new GraphQLError('Server not found!');
-        //const isMember = server.users.find(x => x._id === user._id);
-        //if(!isMember) throw new AuthenticationError('User must be a member off the server!');
-        
-      const channel = await Server.findOne({_id: args.serverId}).select({ textChannels: {$elemMatch: {_id: args.channelId}}});
-      const messages = _.sortBy(channel?.textChannels[0].messages,'createdAt')
-      return messages
-        // const messageList = await PrivateMessage.
-        //   find({ $or:[{senderId:args.senderId, receiverId:user._id},{senderId:user._id, receiverId:args.senderId}]}).
-        //   limit(args.limit).
-        //   skip(args.offset).
-        //   sort({createdAt: 'desc'})
-        // return messageList
-      },
-
+      resolve: getChannelMessages,
     },
     ChatList: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserNotificationType))),
       args: {
         token: { type: GraphQLString },
       },
-      async resolve(parent: any, args: any, context: IContext) {
-        if(!args.token)throw new AuthenticationError('Token not found!');
-        const {id} = validateToken(args.token);
-        const user = await User.findOne({_id: id});
-        if(!user) throw new AuthenticationError('User not found!');
-
-        const lastMessages = await PrivateMessage.find({ receiverId:user._id}).sort({ createdAt: -1});
-        console.log('res',lastMessages)
-
-        const lastMessagesByUser = _.uniqBy(lastMessages,'senderId');
-   
-        const res: DirectMessage[]=[];
-
-        for(const item of lastMessagesByUser){
-          const u =  await User.findOne({_id: item.senderId});
-          if(u){
-            const unreadMessages = await PrivateMessage.find({senderId: item.senderId, isSeen:false}).countDocuments()
-
-            const aux : DirectMessage = {
-              userId: u._id,
-              userName: u.userName,
-              status: u.status,
-              unreadMessages:unreadMessages,
-            }
-            res.push(aux)
-          }
-
-        }
-
-        return res  
-      },
-
+      resolve: getChatList,
     },
     ServerMembers: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserType))),
@@ -213,21 +135,7 @@ export const RootQuery = new GraphQLObjectType({
         token: { type: GraphQLString },
         serverId: { type: GraphQLString },
       },
-      async resolve(parent: any, args: any, context: IContext) {
-        if(!args.token)throw new AuthenticationError('Token not found!');
-        if(!args.serverId)throw new AuthenticationError('Server id not found!');       
-        const {id} = validateToken(args.token);
-        const user = await User.findOne({_id: id});
-        if(!user) throw new AuthenticationError('User not found!');
-        const server = await Server.findOne({_id: args.serverId});
-        if (!server) return new GraphQLError('Server not found!');
-        const isMember = server.users.find(x => x === user._id);
-        if(!isMember) throw new AuthenticationError('User must be a member off the server!');
-        const list = server.users.map(x => x)
-        const members = await User.find({ '_id': { $in: list } });
-        return members
-      },
-
+      resolve:getMembers,
     },  
   },
 });
